@@ -185,7 +185,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <div id='shape-options' class='panel-section hidden'>
       <span class='panel-label'>Fill color</span>
       <div class='panel-buttons'>
-        <button class='shape-fill-btn active' data-color='#3b82f6' style='background-color: #3b82f6'></button>
+        <button class='shape-fill-btn active' data-color='transparent' title='Sem preenchimento' style='background: linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%), linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%); background-size: 8px 8px; background-position: 0 0, 4px 4px; background-color: #333;'></button>
+        <button class='shape-fill-btn' data-color='#3b82f6' style='background-color: #3b82f6'></button>
         <button class='shape-fill-btn' data-color='#ef4444' style='background-color: #ef4444'></button>
         <button class='shape-fill-btn' data-color='#22c55e' style='background-color: #22c55e'></button>
         <button class='shape-fill-btn' data-color='#eab308' style='background-color: #eab308'></button>
@@ -400,4 +401,16 @@ shapeWidthButtons.forEach(btn => {
     const width = parseInt(btn.dataset.width || '2');
     canvas.setShapeStrokeWidth(width);
   });
+});
+
+// Zoom buttons
+const zoomInBtn = document.querySelector<HTMLButtonElement>('#zoom-in')!;
+const zoomOutBtn = document.querySelector<HTMLButtonElement>('#zoom-out')!;
+
+zoomInBtn.addEventListener('click', () => {
+  canvas.zoomIn();
+});
+
+zoomOutBtn.addEventListener('click', () => {
+  canvas.zoomOut();
 });

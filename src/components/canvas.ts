@@ -81,7 +81,7 @@ export function Canvas(element: HTMLCanvasElement) {
     let currentStrokeWidth = 4;
     let currentStrokeColor = '#ffffff';
     let currentShapeType: ShapeType = 'rectangle';
-    let currentShapeFillColor = '#3b82f6';
+    let currentShapeFillColor = 'transparent';
     let currentShapeStrokeColor = '#ffffff';
     let currentShapeStrokeWidth = 2;
 
@@ -155,6 +155,11 @@ export function Canvas(element: HTMLCanvasElement) {
     let panStart = { x: 0, y: 0 };
     let offset = { x: 0, y: 0 };
 
+    // Zoom state
+    let scale = 1;
+    const MIN_SCALE = 0.25;
+    const MAX_SCALE = 4;
+
     function resize() {
         element.width = window.innerWidth;
         element.height = window.innerHeight;
@@ -165,6 +170,7 @@ export function Canvas(element: HTMLCanvasElement) {
         context.clearRect(0, 0, element.width, element.height);
         context.save();
         context.translate(offset.x, offset.y);
+        context.scale(scale, scale);
 
         // Draw all elements
         for (const el of elements) {
@@ -816,8 +822,8 @@ export function Canvas(element: HTMLCanvasElement) {
 
     function getCanvasPoint(e: MouseEvent) {
         return {
-            x: e.clientX - offset.x,
-            y: e.clientY - offset.y
+            x: (e.clientX - offset.x) / scale,
+            y: (e.clientY - offset.y) / scale
         };
     }
 
@@ -1346,6 +1352,38 @@ export function Canvas(element: HTMLCanvasElement) {
     resize();
     setTool('select');
 
+    function zoomIn() {
+        const centerX = element.width / 2;
+        const centerY = element.height / 2;
+        const newScale = Math.min(scale * 1.2, MAX_SCALE);
+
+        // Adjust offset to zoom towards center
+        offset.x = centerX - (centerX - offset.x) * (newScale / scale);
+        offset.y = centerY - (centerY - offset.y) * (newScale / scale);
+
+        scale = newScale;
+        render();
+    }
+
+    function zoomOut() {
+        const centerX = element.width / 2;
+        const centerY = element.height / 2;
+        const newScale = Math.max(scale / 1.2, MIN_SCALE);
+
+        // Adjust offset to zoom towards center
+        offset.x = centerX - (centerX - offset.x) * (newScale / scale);
+        offset.y = centerY - (centerY - offset.y) * (newScale / scale);
+
+        scale = newScale;
+        render();
+    }
+
+    function resetZoom() {
+        scale = 1;
+        offset = { x: 0, y: 0 };
+        render();
+    }
+
     return {
         setTool,
         setTextSize,
@@ -1358,6 +1396,9 @@ export function Canvas(element: HTMLCanvasElement) {
         setShapeStrokeColor,
         setShapeStrokeWidth,
         onSelectionChange,
-        onToolChange
+        onToolChange,
+        zoomIn,
+        zoomOut,
+        resetZoom
     };
 }
