@@ -1,7 +1,8 @@
-import { Canvas, type SelectionInfo } from './components/canvas'
-import './style.css'
+import { createCanvas } from './canvas';
+import { setupMenu, setupToolbar, setupShapePanel, setupSidePanel, setupZoomControls, setupHistoryControls } from './components';
+import './style.css';
 
-
+// Create HTML structure
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <canvas id='canvas'></canvas>
   <div id='header'>
@@ -13,29 +14,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </svg>
     </button>
     <div id='menu-dropdown' class='hidden'>
-      <button class='menu-item' id='export-btn'>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-          <circle cx="8.5" cy="8.5" r="1.5"></circle>
-          <polyline points="21 15 16 10 5 21"></polyline>
-        </svg>
-        <span>Export image</span>
-      </button>
-      <button class='menu-item' id='save-btn'>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-          <polyline points="17 21 17 13 7 13 7 21"></polyline>
-          <polyline points="7 3 7 8 15 8"></polyline>
-        </svg>
-        <span>Save</span>
-      </button>
-      <button class='menu-item' id='clear-btn'>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        </svg>
-        <span>Clear</span>
-      </button>
     </div>
   </div>
   <div id='toolbar'>
@@ -71,11 +49,15 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="3" width="18" height="18" rx="2"></rect>
       </svg>
-    </button>
     <button id='tool-arrow' class='tool-btn' title='Seta'>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="5" y1="12" x2="19" y2="12"></line>
         <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    </button>
+    <button id='tool-line' class='tool-btn' title='Seta'>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
     </button>
   </div>
@@ -128,12 +110,27 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     </div>
   </div>
   <div id='foot'>
-    <button id='zoom-out'>
+    <button id='undo-btn' class='disabled' disabled title='Desfazer (Ctrl+Z)'>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 10h10a5 5 0 0 1 5 5v2"></path>
+        <polyline points="3 10 7 6"></polyline>
+        <polyline points="3 10 7 14"></polyline>
+      </svg>
+    </button>
+    <button id='redo-btn' class='disabled' disabled title='Refazer (Ctrl+Y)'>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 10H11a5 5 0 0 0-5 5v2"></path>
+        <polyline points="21 10 17 6"></polyline>
+        <polyline points="21 10 17 14"></polyline>
+      </svg>
+    </button>
+    <span class='foot-separator'></span>
+    <button id='zoom-out' title='Diminuir zoom'>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
     </button>
-    <button id='zoom-in'>
+    <button id='zoom-in' title='Aumentar zoom'>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="12" y1="5" x2="12" y2="19"></line>
         <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -209,208 +206,36 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           <span class='stroke-preview' style='height: 4px'></span>
         </button>
       </div>
+      <span class='panel-label'>Border radius</span>
+      <div class='panel-buttons'>
+        <button class='shape-radius-btn active' data-radius='0' title='Sem arredondamento'>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="4" y="4" width="16" height="16"></rect>
+          </svg>
+        </button>
+        <button class='shape-radius-btn' data-radius='8' title='Pouco arredondado'>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="4" y="4" width="16" height="16" rx="4"></rect>
+          </svg>
+        </button>
+        <button class='shape-radius-btn' data-radius='16' title='Arredondado'>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="4" y="4" width="16" height="16" rx="8"></rect>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
-`
+`;
 
-const canvas = Canvas(document.querySelector<HTMLCanvasElement>('#canvas')!);
+// Initialize canvas
+const canvasElement = document.querySelector<HTMLCanvasElement>('#canvas')!;
+const canvas = createCanvas(canvasElement);
 
-const menuBtn = document.querySelector<HTMLButtonElement>('#menu-btn')!;
-const menuDropdown = document.querySelector<HTMLDivElement>('#menu-dropdown')!;
-
-menuBtn.addEventListener('click', () => {
-  menuDropdown.classList.toggle('hidden');
-});
-
-document.addEventListener('click', (e) => {
-  if (!menuBtn.contains(e.target as Node) && !menuDropdown.contains(e.target as Node)) {
-    menuDropdown.classList.add('hidden');
-  }
-});
-
-// Toolbar
-const toolButtons = document.querySelectorAll<HTMLButtonElement>('.tool-btn');
-const sidePanel = document.querySelector<HTMLDivElement>('#side-panel')!;
-const textOptions = document.querySelector<HTMLDivElement>('#text-options')!;
-const strokeOptions = document.querySelector<HTMLDivElement>('#stroke-options')!;
-const shapeOptions = document.querySelector<HTMLDivElement>('#shape-options')!;
-const shapePanel = document.querySelector<HTMLDivElement>('#shape-panel')!;
-
-let currentSelection: SelectionInfo = { hasText: false, hasPath: false, hasShape: false, hasArrow: false, count: 0 };
-let currentToolState = 'select';
-
-function updateSidePanel() {
-  const tool = currentToolState;
-  const selection = currentSelection;
-
-  // Show panel if tool is text/draw/shape/arrow OR if elements are selected
-  const showTextOptions = tool === 'text' || selection.hasText;
-  const showStrokeOptions = tool === 'draw' || tool === 'arrow' || selection.hasPath || selection.hasArrow;
-  const showShapeOptions = tool === 'shape' || selection.hasShape;
-
-  if (showTextOptions || showStrokeOptions || showShapeOptions) {
-    sidePanel.classList.remove('hidden');
-
-    if (showTextOptions) {
-      textOptions.classList.remove('hidden');
-    } else {
-      textOptions.classList.add('hidden');
-    }
-
-    if (showStrokeOptions) {
-      strokeOptions.classList.remove('hidden');
-    } else {
-      strokeOptions.classList.add('hidden');
-    }
-
-    if (showShapeOptions) {
-      shapeOptions.classList.remove('hidden');
-    } else {
-      shapeOptions.classList.add('hidden');
-    }
-  } else {
-    sidePanel.classList.add('hidden');
-    textOptions.classList.add('hidden');
-    strokeOptions.classList.add('hidden');
-    shapeOptions.classList.add('hidden');
-  }
-}
-
-toolButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    toolButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    const tool = btn.id.replace('tool-', '') as 'select' | 'move' | 'draw' | 'text' | 'shape' | 'arrow';
-    canvas.setTool(tool);
-    currentToolState = tool;
-    updateSidePanel();
-    updateShapePanel();
-  });
-});
-
-// Shape panel handling
-const shapeItems = document.querySelectorAll<HTMLButtonElement>('.shape-item');
-shapeItems.forEach(item => {
-  item.addEventListener('click', () => {
-    shapeItems.forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
-
-    const shapeType = item.dataset.shape as 'triangle' | 'square' | 'rectangle' | 'circle' | 'ellipse' | 'diamond' | 'cylinder' | 'pyramid';
-    canvas.setShapeType(shapeType);
-  });
-});
-
-function updateShapePanel() {
-  if (currentToolState === 'shape') {
-    shapePanel.classList.remove('hidden');
-  } else {
-    shapePanel.classList.add('hidden');
-  }
-}
-
-// Listen for selection changes
-canvas.onSelectionChange((info) => {
-  currentSelection = info;
-  updateSidePanel();
-});
-
-// Font size buttons
-const sizeButtons = document.querySelectorAll<HTMLButtonElement>('.size-btn');
-sizeButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    sizeButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const size = parseInt(btn.dataset.size || '24');
-    canvas.setTextSize(size);
-  });
-});
-
-// Stroke width buttons
-const strokeButtons = document.querySelectorAll<HTMLButtonElement>('.stroke-btn');
-strokeButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    strokeButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const width = parseInt(btn.dataset.width || '4');
-    canvas.setStrokeWidth(width);
-  });
-});
-
-// Text style buttons
-const styleButtons = document.querySelectorAll<HTMLButtonElement>('.style-btn');
-styleButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    styleButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const style = btn.dataset.style || 'normal';
-    canvas.setTextStyle(style as 'normal' | 'bold' | 'italic');
-  });
-});
-
-// Text color buttons
-const colorButtons = document.querySelectorAll<HTMLButtonElement>('.color-btn');
-colorButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    colorButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const color = btn.dataset.color || '#ffffff';
-    canvas.setTextColor(color);
-  });
-});
-
-// Stroke color buttons
-const strokeColorButtons = document.querySelectorAll<HTMLButtonElement>('.stroke-color-btn');
-strokeColorButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    strokeColorButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const color = btn.dataset.color || '#ffffff';
-    canvas.setStrokeColor(color);
-  });
-});
-
-// Shape fill color buttons
-const shapeFillButtons = document.querySelectorAll<HTMLButtonElement>('.shape-fill-btn');
-shapeFillButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    shapeFillButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const color = btn.dataset.color || '#3b82f6';
-    canvas.setShapeFillColor(color);
-  });
-});
-
-// Shape stroke color buttons
-const shapeStrokeButtons = document.querySelectorAll<HTMLButtonElement>('.shape-stroke-btn');
-shapeStrokeButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    shapeStrokeButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const color = btn.dataset.color || '#ffffff';
-    canvas.setShapeStrokeColor(color);
-  });
-});
-
-// Shape stroke width buttons
-const shapeWidthButtons = document.querySelectorAll<HTMLButtonElement>('.shape-width-btn');
-shapeWidthButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    shapeWidthButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const width = parseInt(btn.dataset.width || '2');
-    canvas.setShapeStrokeWidth(width);
-  });
-});
-
-// Zoom buttons
-const zoomInBtn = document.querySelector<HTMLButtonElement>('#zoom-in')!;
-const zoomOutBtn = document.querySelector<HTMLButtonElement>('#zoom-out')!;
-
-zoomInBtn.addEventListener('click', () => {
-  canvas.zoomIn();
-});
-
-zoomOutBtn.addEventListener('click', () => {
-  canvas.zoomOut();
-});
+// Setup UI components
+setupMenu();
+setupToolbar(canvas);
+setupShapePanel(canvas);
+setupSidePanel(canvas);
+setupZoomControls(canvas);
+setupHistoryControls(canvas);

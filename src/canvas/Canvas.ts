@@ -1,0 +1,195 @@
+import type { Tool, SelectionInfo } from '../types';
+import { store } from '../state/store';
+import * as actions from '../state/actions';
+import { getCanvasPoint, getSelectionBoundingBox } from '../utils/geometry';
+import { drawPath, drawText, drawShape, drawArrow, drawSelectionUI, drawMarquee, drawLine } from './renderer';
+import { tools } from './tools';
+import type { ToolContext } from './tools';
+
+export function createCanvas(element: HTMLCanvasElement) {
+  const ctx = element.getContext('2d')!;
+  const state = store.getState();
+
+  const context: ToolContext = {
+    canvas: element,
+    ctx,
+    render,
+  };
+
+  function resize() {
+    element.width = window.innerWidth;
+    element.height = window.innerHeight;
+    render();
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, element.width, element.height);
+    ctx.save();
+    ctx.translate(state.offset.x, state.offset.y);
+    ctx.scale(state.scale, state.scale);
+
+    // Draw all elements
+    for (const el of state.elements) {
+      if (el.type === 'path') {
+        drawPath(ctx, el.data);
+      } else if (el.type === 'text') {
+        drawText(ctx, el.data);
+      } else if (el.type === 'shape') {
+        drawShape(ctx, el.data);
+      } else if (el.type === 'arrow') {
+        drawArrow(ctx, el.data);
+      } else if (el.type === 'line') {
+        drawLine(ctx, el.data);
+      }
+    }
+
+    // Draw current path being drawn
+    if (state.currentPath) {
+      drawPath(ctx, state.currentPath);
+    }
+
+    // Draw current shape being created
+    if (state.currentShape) {
+      drawShape(ctx, state.currentShape);
+    }
+
+    // Draw current arrow being created
+    if (state.currentArrow) {
+      drawArrow(ctx, state.currentArrow);
+    }
+
+    // Draw active text block
+    if (state.activeTextBlock) {
+      drawText(ctx, state.activeTextBlock, true);
+    }
+
+    // Draw current line being created;
+    if (state.currentLine) {
+      drawLine(ctx, state.currentLine);
+    }
+
+    // Draw selection UI
+    if (state.selectedElements.size > 0 && !state.isMarqueeSelecting) {
+      const box =
+        state.selectionRotation !== 0 && state.initialSelectionBox
+          ? state.initialSelectionBox
+          : getSelectionBoundingBox(state.selectedElements, ctx);
+      if (box) {
+        drawSelectionUI(ctx, box, state.selectionRotation);
+      }
+    }
+
+    // Draw marquee selection box
+    if (state.isMarqueeSelecting) {
+      drawMarquee(ctx, state.marqueeStart.x, state.marqueeStart.y, state.marqueeEnd.x, state.marqueeEnd.y);
+    }
+
+    ctx.restore();
+  }
+
+  function handleMouseDown(e: MouseEvent) {
+    const point = getCanvasPoint(e, state.offset, state.scale);
+    const tool = tools[state.currentTool];
+    tool.onMouseDown?.(e, point, context);
+  }
+
+  function handleMouseMove(e: MouseEvent) {
+    const point = getCanvasPoint(e, state.offset, state.scale);
+    const tool = tools[state.currentTool];
+    tool.onMouseMove?.(e, point, context);
+  }
+
+  function handleMouseUp(e: MouseEvent) {
+    const point = getCanvasPoint(e, state.offset, state.scale);
+    const tool = tools[state.currentTool];
+    tool.onMouseUp?.(e, point, context);
+  }
+
+  function handleDoubleClick(e: MouseEvent) {
+    const point = getCanvasPoint(e, state.offset, state.scale);
+    const tool = tools[state.currentTool];
+    tool.onDoubleClick?.(e, point, context);
+  }
+
+  function handleKeyDown(e: KeyboardEvent) {
+    // Ctrl+Z = Undo
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      actions.undo();
+      return;
+    }
+
+    // Ctrl+Y or Ctrl+Shift+Z = Redo
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+      e.preventDefault();
+      actions.redo();
+      return;
+    }
+
+    // Escape switches to select tool
+    if (e.key === 'Escape') {
+      if (state.currentTool === 'text' && state.activeTextBlock) {
+        actions.commitActiveTextBlock();
+      }
+      setTool('select');
+      render();
+      return;
+    }
+
+    const tool = tools[state.currentTool];
+    tool.onKeyDown?.(e, context);
+  }
+
+  function setTool(tool: Tool) {
+    const currentTool = tools[state.currentTool];
+    currentTool.onDeactivate?.(context);
+
+    actions.setTool(tool);
+
+    const newTool = tools[tool];
+    newTool.onActivate?.(context);
+    element.style.cursor = newTool.cursor;
+
+    render();
+  }
+
+  // Event listeners
+  element.addEventListener('mousedown', handleMouseDown);
+  element.addEventListener('mousemove', handleMouseMove);
+  element.addEventListener('mouseup', handleMouseUp);
+  element.addEventListener('mouseleave', handleMouseUp);
+  element.addEventListener('dblclick', handleDoubleClick);
+  window.addEventListener('keydown', handleKeyDown);
+  window.addEventListener('resize', resize);
+
+  // Subscribe to state changes
+  store.subscribe(render);
+
+  // Initialize
+  resize();
+  setTool('select');
+
+  return {
+    setTool,
+    setTextSize: actions.setTextSize,
+    setTextStyle: actions.setTextStyle,
+    setTextColor: actions.setTextColor,
+    setStrokeWidth: actions.setStrokeWidth,
+    setStrokeColor: actions.setStrokeColor,
+    setShapeType: actions.setShapeType,
+    setShapeFillColor: actions.setShapeFillColor,
+    setShapeStrokeColor: actions.setShapeStrokeColor,
+    setShapeStrokeWidth: actions.setShapeStrokeWidth,
+    setShapeBorderRadius: actions.setShapeBorderRadius,
+    zoomIn: () => actions.zoomIn(element.width / 2, element.height / 2),
+    zoomOut: () => actions.zoomOut(element.width / 2, element.height / 2),
+    resetZoom: actions.resetZoom,
+    undo: actions.undo,
+    redo: actions.redo,
+    onSelectionChange: (callback: (info: SelectionInfo) => void) => store.subscribeToSelection(callback),
+    onToolChange: (callback: (tool: Tool) => void) => store.subscribeToTool(callback),
+    onHistoryChange: (callback: (info: { canUndo: boolean; canRedo: boolean }) => void) => store.subscribeToHistory(callback),
+  };
+}
+
+export type Canvas = ReturnType<typeof createCanvas>;
