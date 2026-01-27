@@ -5,7 +5,7 @@ export type ShapeType = 'triangle' | 'square' | 'rectangle' | 'circle' | 'ellips
 
 export type FontStyle = 'normal' | 'bold' | 'italic';
 
-export type HandleType = 'nw' | 'ne' | 'sw' | 'se' | 'rotate' | null;
+export type HandleType = 'nw' | 'ne' | 'sw' | 'se' | 'rotate' | 'start' | 'end' | null;
 
 // Element data types
 export interface TextBlock {

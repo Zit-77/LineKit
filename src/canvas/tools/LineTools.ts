@@ -30,6 +30,7 @@ export const LineTool: BaseTool = {
     onMouseMove(_e: MouseEvent, point: Point, context: ToolContext) {
         const state = store.getState();
 
+
         if (state.isCreatingLine && state.currentLine) {
             state.currentLine.endX = point.x;
             state.currentLine.endY = point.y;

@@ -2,7 +2,7 @@ import type { Tool, SelectionInfo } from '../types';
 import { store } from '../state/store';
 import * as actions from '../state/actions';
 import { getCanvasPoint, getSelectionBoundingBox } from '../utils/geometry';
-import { drawPath, drawText, drawShape, drawArrow, drawSelectionUI, drawMarquee, drawLine } from './renderer';
+import { drawPath, drawText, drawShape, drawArrow, drawSelectionUI, drawLineSelectionUI, drawMarquee, drawLine } from './renderer';
 import { tools } from './tools';
 import type { ToolContext } from './tools';
 
@@ -70,12 +70,23 @@ export function createCanvas(element: HTMLCanvasElement) {
 
     // Draw selection UI
     if (state.selectedElements.size > 0 && !state.isMarqueeSelecting) {
-      const box =
-        state.selectionRotation !== 0 && state.initialSelectionBox
-          ? state.initialSelectionBox
-          : getSelectionBoundingBox(state.selectedElements, ctx);
-      if (box) {
-        drawSelectionUI(ctx, box, state.selectionRotation);
+      // Check if single line or arrow is selected
+      const selectedArray = Array.from(state.selectedElements);
+      if (selectedArray.length === 1 && (selectedArray[0].type === 'line' || selectedArray[0].type === 'arrow')) {
+        const el = selectedArray[0];
+        if (el.type === 'line') {
+          drawLineSelectionUI(ctx, el.data.startX, el.data.startY, el.data.endX, el.data.endY);
+        } else if (el.type === 'arrow') {
+          drawLineSelectionUI(ctx, el.data.startX, el.data.startY, el.data.endX, el.data.endY);
+        }
+      } else {
+        const box =
+          state.selectionRotation !== 0 && state.initialSelectionBox
+            ? state.initialSelectionBox
+            : getSelectionBoundingBox(state.selectedElements, ctx);
+        if (box) {
+          drawSelectionUI(ctx, box, state.selectionRotation);
+        }
       }
     }
 
@@ -171,16 +182,6 @@ export function createCanvas(element: HTMLCanvasElement) {
 
   return {
     setTool,
-    setTextSize: actions.setTextSize,
-    setTextStyle: actions.setTextStyle,
-    setTextColor: actions.setTextColor,
-    setStrokeWidth: actions.setStrokeWidth,
-    setStrokeColor: actions.setStrokeColor,
-    setShapeType: actions.setShapeType,
-    setShapeFillColor: actions.setShapeFillColor,
-    setShapeStrokeColor: actions.setShapeStrokeColor,
-    setShapeStrokeWidth: actions.setShapeStrokeWidth,
-    setShapeBorderRadius: actions.setShapeBorderRadius,
     zoomIn: () => actions.zoomIn(element.width / 2, element.height / 2),
     zoomOut: () => actions.zoomOut(element.width / 2, element.height / 2),
     resetZoom: actions.resetZoom,

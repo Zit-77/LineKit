@@ -188,6 +188,8 @@ export function setStrokeWidth(width: number) {
       el.data.lineWidth = width;
     } else if (el.type === 'arrow') {
       el.data.lineWidth = width;
+    } else if (el.type === 'line') {
+      el.data.lineWidth = width;
     }
   }
   store.notify();
@@ -199,6 +201,8 @@ export function setStrokeColor(color: string) {
     if (el.type === 'path') {
       el.data.color = color;
     } else if (el.type === 'arrow') {
+      el.data.color = color;
+    } else if (el.type === 'line') {
       el.data.color = color;
     }
   }

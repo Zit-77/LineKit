@@ -331,6 +331,35 @@ export function drawSelectionUI(
   ctx.restore();
 }
 
+export function drawLineSelectionUI(
+  ctx: CanvasRenderingContext2D,
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number
+) {
+  const handleRadius = 6;
+
+  ctx.save();
+  ctx.fillStyle = 'white';
+  ctx.strokeStyle = SELECTION_COLOR;
+  ctx.lineWidth = 2;
+
+  // Draw start handle (circle)
+  ctx.beginPath();
+  ctx.arc(startX, startY, handleRadius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Draw end handle (circle)
+  ctx.beginPath();
+  ctx.arc(endX, endY, handleRadius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.restore();
+}
+
 export function drawMarquee(
   ctx: CanvasRenderingContext2D,
   startX: number,

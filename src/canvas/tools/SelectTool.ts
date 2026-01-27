@@ -5,6 +5,7 @@ import * as actions from '../../state/actions';
 import {
   hitTest,
   hitTestHandle,
+  hitTestLineHandle,
   getBoundingBox,
   getSelectionBoundingBox,
   boxesIntersect,
@@ -22,8 +23,23 @@ export const SelectTool: BaseTool = {
   onMouseDown(e: MouseEvent, point: Point, context: ToolContext) {
     const state = store.getState();
 
+
     // First check if clicking on a handle
     if (state.selectedElements.size > 0) {
+      // Check for line/arrow handles first (single selection)
+      const selectedArray = Array.from(state.selectedElements);
+      if (selectedArray.length === 1 && (selectedArray[0].type === 'line' || selectedArray[0].type === 'arrow')) {
+        const el = selectedArray[0];
+        const data = el.data as { startX: number; startY: number; endX: number; endY: number };
+        const lineHandle = hitTestLineHandle(point, data.startX, data.startY, data.endX, data.endY);
+        if (lineHandle) {
+          actions.setActiveHandle(lineHandle);
+          actions.setTransformStart(point);
+          return;
+        }
+      }
+
+      // Check standard handles for other elements
       const box =
         state.selectionRotation !== 0 && state.initialSelectionBox
           ? state.initialSelectionBox
@@ -82,6 +98,28 @@ export const SelectTool: BaseTool = {
 
   onMouseMove(_e: MouseEvent, point: Point, context: ToolContext) {
     const state = store.getState();
+
+    console.log(point);
+
+    // Handle line/arrow endpoint dragging
+    if (state.activeHandle && (state.activeHandle === 'start' || state.activeHandle === 'end')) {
+      const selectedArray = Array.from(state.selectedElements);
+      if (selectedArray.length === 1 && (selectedArray[0].type === 'line' || selectedArray[0].type === 'arrow')) {
+        const el = selectedArray[0];
+        const data = el.data as { startX: number; startY: number; endX: number; endY: number };
+
+        if (state.activeHandle === 'start') {
+          data.startX = point.x;
+          data.startY = point.y;
+        } else {
+          data.endX = point.x;
+          data.endY = point.y;
+        }
+
+        context.render();
+        return;
+      }
+    }
 
     if (state.activeHandle && state.initialSelectionBox) {
       const box = state.initialSelectionBox;
@@ -150,6 +188,18 @@ export const SelectTool: BaseTool = {
     } else {
       // Update cursor based on what's under the mouse
       if (state.selectedElements.size > 0) {
+        // Check for line/arrow handles first (single selection)
+        const selectedArray = Array.from(state.selectedElements);
+        if (selectedArray.length === 1 && (selectedArray[0].type === 'line' || selectedArray[0].type === 'arrow')) {
+          const el = selectedArray[0];
+          const data = el.data as { startX: number; startY: number; endX: number; endY: number };
+          const lineHandle = hitTestLineHandle(point, data.startX, data.startY, data.endX, data.endY);
+          if (lineHandle) {
+            context.canvas.style.cursor = 'crosshair';
+            return;
+          }
+        }
+
         const box =
           state.selectionRotation !== 0 && state.initialSelectionBox
             ? state.initialSelectionBox
@@ -179,8 +229,10 @@ export const SelectTool: BaseTool = {
       if (state.activeHandle === 'rotate') {
         actions.setSelectionRotation(0);
       }
+      // Line handles don't need special cleanup
       actions.setActiveHandle(null);
       actions.setInitialSelectionBox(null);
+      context.render();
     } else if (state.isMarqueeSelecting) {
       const marqueeBox: BoundingBox = {
         x: Math.min(state.marqueeStart.x, state.marqueeEnd.x),

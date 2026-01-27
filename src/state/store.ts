@@ -78,7 +78,7 @@ interface State {
   isCreatingLine: boolean;
 
   // Transform state
-  activeHandle: 'nw' | 'ne' | 'sw' | 'se' | 'rotate' | null;
+  activeHandle: 'nw' | 'ne' | 'sw' | 'se' | 'rotate' | 'start' | 'end' | null;
   initialSelectionBox: BoundingBox | null;
   transformStart: Point;
   dragStart: Point;

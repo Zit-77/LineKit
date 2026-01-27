@@ -1,6 +1,7 @@
 import type { Tool, SelectionInfo, FontStyle } from '../types';
 import type { Canvas } from '../canvas';
 import { $, $all, show, hide } from '../utils/dom';
+import * as actions from '../state/actions';
 
 export function setupSidePanel(canvas: Canvas) {
   const sidePanel = $<HTMLDivElement>('#side-panel')!;
@@ -14,7 +15,7 @@ export function setupSidePanel(canvas: Canvas) {
     hasPath: false,
     hasShape: false,
     hasArrow: false,
-    hasLine : false,
+    hasLine: false,
     count: 0,
   };
 
@@ -23,8 +24,11 @@ export function setupSidePanel(canvas: Canvas) {
     const showStrokeOptions =
       currentTool === 'draw' ||
       currentTool === 'arrow' ||
+      currentTool === 'line' ||
       currentSelection.hasPath ||
-      currentSelection.hasArrow;
+      currentSelection.hasArrow ||
+      currentSelection.hasLine;
+
     const showShapeOptions = currentTool === 'shape' || currentSelection.hasShape;
 
     if (showTextOptions || showStrokeOptions || showShapeOptions) {
@@ -47,7 +51,7 @@ export function setupSidePanel(canvas: Canvas) {
       sizeButtons.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       const size = parseInt(btn.dataset.size || '24');
-      canvas.setTextSize(size);
+      actions.setTextSize(size);
     });
   });
 
@@ -58,7 +62,7 @@ export function setupSidePanel(canvas: Canvas) {
       styleButtons.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       const style = btn.dataset.style || 'normal';
-      canvas.setTextStyle(style as FontStyle);
+      actions.setTextStyle(style as FontStyle);
     });
   });
 
@@ -69,7 +73,7 @@ export function setupSidePanel(canvas: Canvas) {
       colorButtons.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       const color = btn.dataset.color || '#ffffff';
-      canvas.setTextColor(color);
+      actions.setTextColor(color);
     });
   });
 
@@ -80,7 +84,7 @@ export function setupSidePanel(canvas: Canvas) {
       strokeButtons.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       const width = parseInt(btn.dataset.width || '4');
-      canvas.setStrokeWidth(width);
+      actions.setStrokeWidth(width);
     });
   });
 
@@ -91,7 +95,7 @@ export function setupSidePanel(canvas: Canvas) {
       strokeColorButtons.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       const color = btn.dataset.color || '#ffffff';
-      canvas.setStrokeColor(color);
+      actions.setStrokeColor(color);
     });
   });
 
@@ -102,7 +106,7 @@ export function setupSidePanel(canvas: Canvas) {
       shapeFillButtons.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       const color = btn.dataset.color || '#3b82f6';
-      canvas.setShapeFillColor(color);
+      actions.setShapeFillColor(color);
     });
   });
 
@@ -113,7 +117,7 @@ export function setupSidePanel(canvas: Canvas) {
       shapeStrokeButtons.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       const color = btn.dataset.color || '#ffffff';
-      canvas.setShapeStrokeColor(color);
+      actions.setShapeStrokeColor(color);
     });
   });
 
@@ -124,7 +128,7 @@ export function setupSidePanel(canvas: Canvas) {
       shapeWidthButtons.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       const width = parseInt(btn.dataset.width || '2');
-      canvas.setShapeStrokeWidth(width);
+      actions.setShapeStrokeWidth(width);
     });
   });
 
@@ -135,7 +139,7 @@ export function setupSidePanel(canvas: Canvas) {
       shapeRadiusButtons.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       const radius = parseInt(btn.dataset.radius || '0');
-      canvas.setShapeBorderRadius(radius);
+      actions.setShapeBorderRadius(radius);
     });
   });
 

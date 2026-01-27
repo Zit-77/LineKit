@@ -1,6 +1,7 @@
 import type { ShapeType, Tool } from '../types';
 import type { Canvas } from '../canvas';
 import { $, $all, show, hide } from '../utils/dom';
+import * as actions from '../state/actions';
 
 export function setupShapePanel(canvas: Canvas) {
   const shapePanel = $<HTMLDivElement>('#shape-panel')!;
@@ -12,7 +13,7 @@ export function setupShapePanel(canvas: Canvas) {
       item.classList.add('active');
 
       const shapeType = item.dataset.shape as ShapeType;
-      canvas.setShapeType(shapeType);
+      actions.setShapeType(shapeType);
     });
   });
 
