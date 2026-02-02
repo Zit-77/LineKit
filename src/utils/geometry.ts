@@ -53,21 +53,26 @@ export function getBoundingBox(el: CanvasElement, ctx: CanvasRenderingContext2D)
   } else if (el.type === 'arrow') {
     const arrow = el.data;
 
-    // Calculate OBB (Oriented Bounding Box) for tight-fitting selection
+    if (arrow.controlX !== undefined && arrow.controlY !== undefined) {
+      // Curved arrow: use AABB that includes control point
+      const padding = Math.max(arrow.lineWidth * 2, 10);
+      const minX = Math.min(arrow.startX, arrow.endX, arrow.controlX) - padding;
+      const minY = Math.min(arrow.startY, arrow.endY, arrow.controlY) - padding;
+      const maxX = Math.max(arrow.startX, arrow.endX, arrow.controlX) + padding;
+      const maxY = Math.max(arrow.startY, arrow.endY, arrow.controlY) + padding;
+      return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+    }
+
+    // Straight arrow: OBB
     const dx = arrow.endX - arrow.startX;
     const dy = arrow.endY - arrow.startY;
     const length = Math.sqrt(dx * dx + dy * dy);
     const angle = Math.atan2(dy, dx);
-
-    // Calculate center point
     const centerX = (arrow.startX + arrow.endX) / 2;
     const centerY = (arrow.startY + arrow.endY) / 2;
-
-    // Padding for click area (arrows are wider due to arrowhead)
     const headLength = Math.max(arrow.lineWidth * 5, 20);
     const padding = Math.max(arrow.lineWidth * 2, headLength * 0.8);
 
-    // Return OBB with rotation
     return {
       x: centerX - length / 2,
       y: centerY - padding / 2,
@@ -78,20 +83,25 @@ export function getBoundingBox(el: CanvasElement, ctx: CanvasRenderingContext2D)
   } else if (el.type === 'line') {
     const line = el.data;
 
-    // Calculate OBB (Oriented Bounding Box) for tight-fitting selection
+    if (line.controlX !== undefined && line.controlY !== undefined) {
+      // Curved line: use AABB that includes control point
+      const padding = Math.max(line.lineWidth * 2, 6);
+      const minX = Math.min(line.startX, line.endX, line.controlX) - padding;
+      const minY = Math.min(line.startY, line.endY, line.controlY) - padding;
+      const maxX = Math.max(line.startX, line.endX, line.controlX) + padding;
+      const maxY = Math.max(line.startY, line.endY, line.controlY) + padding;
+      return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+    }
+
+    // Straight line: OBB
     const dx = line.endX - line.startX;
     const dy = line.endY - line.startY;
     const length = Math.sqrt(dx * dx + dy * dy);
     const angle = Math.atan2(dy, dx);
-
-    // Calculate center point
     const centerX = (line.startX + line.endX) / 2;
     const centerY = (line.startY + line.endY) / 2;
-
-    // Padding for click area
     const padding = Math.max(line.lineWidth * 2, 6);
 
-    // Return OBB with rotation
     return {
       x: centerX - length / 2,
       y: centerY - padding / 2,
@@ -318,7 +328,7 @@ export function hitTestHandle(
   const distToRotate = Math.sqrt((localPoint.x - rotateX) ** 2 + (localPoint.y - rotateY) ** 2);
   if (distToRotate <= HANDLE_SIZE) return 'rotate';
 
-  // Check corner handles
+  // Check corner handles (priority over side handles)
   if (Math.abs(localPoint.x - x) < HANDLE_HIT_SIZE && Math.abs(localPoint.y - y) < HANDLE_HIT_SIZE)
     return 'nw';
   if (
@@ -337,6 +347,16 @@ export function hitTestHandle(
   )
     return 'se';
 
+  // Check side handles
+  if (Math.abs(localPoint.x - (x + width / 2)) < HANDLE_HIT_SIZE && Math.abs(localPoint.y - y) < HANDLE_HIT_SIZE)
+    return 'n';
+  if (Math.abs(localPoint.x - (x + width / 2)) < HANDLE_HIT_SIZE && Math.abs(localPoint.y - (y + height)) < HANDLE_HIT_SIZE)
+    return 's';
+  if (Math.abs(localPoint.x - x) < HANDLE_HIT_SIZE && Math.abs(localPoint.y - (y + height / 2)) < HANDLE_HIT_SIZE)
+    return 'w';
+  if (Math.abs(localPoint.x - (x + width)) < HANDLE_HIT_SIZE && Math.abs(localPoint.y - (y + height / 2)) < HANDLE_HIT_SIZE)
+    return 'e';
+
   return null;
 }
 
@@ -345,9 +365,11 @@ export function hitTestLineHandle(
   startX: number,
   startY: number,
   endX: number,
-  endY: number
+  endY: number,
+  controlX?: number,
+  controlY?: number
 ): HandleType {
-  const handleRadius = 10; // Hit area radius
+  const handleRadius = 10;
 
   // Check start handle
   const distToStart = Math.sqrt((point.x - startX) ** 2 + (point.y - startY) ** 2);
@@ -356,6 +378,19 @@ export function hitTestLineHandle(
   // Check end handle
   const distToEnd = Math.sqrt((point.x - endX) ** 2 + (point.y - endY) ** 2);
   if (distToEnd <= handleRadius) return 'end';
+
+  // Check mid handle - positioned ON the curve at t=0.5
+  let curveX: number;
+  let curveY: number;
+  if (controlX !== undefined && controlY !== undefined) {
+    curveX = 0.25 * startX + 0.5 * controlX + 0.25 * endX;
+    curveY = 0.25 * startY + 0.5 * controlY + 0.25 * endY;
+  } else {
+    curveX = (startX + endX) / 2;
+    curveY = (startY + endY) / 2;
+  }
+  const distToMid = Math.sqrt((point.x - curveX) ** 2 + (point.y - curveY) ** 2);
+  if (distToMid <= handleRadius) return 'mid';
 
   return null;
 }

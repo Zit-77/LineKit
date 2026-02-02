@@ -1,9 +1,10 @@
-import type { Point } from '../../types';
+import type { Point, Tool } from '../../types';
 
 export interface ToolContext {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   render: () => void;
+  setTool: (tool: Tool) => void;
 }
 
 export interface BaseTool {

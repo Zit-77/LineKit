@@ -30,8 +30,8 @@ export const SelectTool: BaseTool = {
       const selectedArray = Array.from(state.selectedElements);
       if (selectedArray.length === 1 && (selectedArray[0].type === 'line' || selectedArray[0].type === 'arrow')) {
         const el = selectedArray[0];
-        const data = el.data as { startX: number; startY: number; endX: number; endY: number };
-        const lineHandle = hitTestLineHandle(point, data.startX, data.startY, data.endX, data.endY);
+        const data = el.data as { startX: number; startY: number; endX: number; endY: number; controlX?: number; controlY?: number };
+        const lineHandle = hitTestLineHandle(point, data.startX, data.startY, data.endX, data.endY, data.controlX, data.controlY);
         if (lineHandle) {
           actions.setActiveHandle(lineHandle);
           actions.setTransformStart(point);
@@ -99,21 +99,26 @@ export const SelectTool: BaseTool = {
   onMouseMove(_e: MouseEvent, point: Point, context: ToolContext) {
     const state = store.getState();
 
-    console.log(point);
-
-    // Handle line/arrow endpoint dragging
-    if (state.activeHandle && (state.activeHandle === 'start' || state.activeHandle === 'end')) {
+    // Handle line/arrow endpoint and control point dragging
+    if (state.activeHandle && (state.activeHandle === 'start' || state.activeHandle === 'end' || state.activeHandle === 'mid')) {
       const selectedArray = Array.from(state.selectedElements);
       if (selectedArray.length === 1 && (selectedArray[0].type === 'line' || selectedArray[0].type === 'arrow')) {
         const el = selectedArray[0];
-        const data = el.data as { startX: number; startY: number; endX: number; endY: number };
+        const data = el.data as { startX: number; startY: number; endX: number; endY: number; controlX?: number; controlY?: number };
 
         if (state.activeHandle === 'start') {
           data.startX = point.x;
           data.startY = point.y;
-        } else {
+        } else if (state.activeHandle === 'end') {
           data.endX = point.x;
           data.endY = point.y;
+        } else if (state.activeHandle === 'mid') {
+          // The user drags a point ON the curve (t=0.5).
+          // Convert to the actual bezier control point:
+          // curvePoint = 0.25*start + 0.5*control + 0.25*end
+          // control = 2*curvePoint - 0.5*start - 0.5*end
+          data.controlX = 2 * point.x - 0.5 * data.startX - 0.5 * data.endX;
+          data.controlY = 2 * point.y - 0.5 * data.startY - 0.5 * data.endY;
         }
 
         context.render();
@@ -121,12 +126,13 @@ export const SelectTool: BaseTool = {
       }
     }
 
-    if (state.activeHandle && state.initialSelectionBox) {
+    const handle = state.activeHandle;
+    if (handle && state.initialSelectionBox) {
       const box = state.initialSelectionBox;
       const centerX = box.x + box.width / 2;
       const centerY = box.y + box.height / 2;
 
-      if (state.activeHandle === 'rotate') {
+      if (handle === 'rotate') {
         const currentAngle = Math.atan2(
           point.y - state.rotationCenter.y,
           point.x - state.rotationCenter.x
@@ -142,29 +148,43 @@ export const SelectTool: BaseTool = {
         // Resize handles
         let scaleX = 1;
         let scaleY = 1;
+        let pivotX = centerX;
+        let pivotY = centerY;
 
         const dx = point.x - state.transformStart.x;
         const dy = point.y - state.transformStart.y;
 
-        if (state.activeHandle === 'se') {
+        if (handle === 'se') {
           scaleX = (box.width + dx) / box.width;
           scaleY = (box.height + dy) / box.height;
-        } else if (state.activeHandle === 'nw') {
+        } else if (handle === 'nw') {
           scaleX = (box.width - dx) / box.width;
           scaleY = (box.height - dy) / box.height;
-        } else if (state.activeHandle === 'ne') {
+        } else if (handle === 'ne') {
           scaleX = (box.width + dx) / box.width;
           scaleY = (box.height - dy) / box.height;
-        } else if (state.activeHandle === 'sw') {
+        } else if (handle === 'sw') {
           scaleX = (box.width - dx) / box.width;
           scaleY = (box.height + dy) / box.height;
+        } else if (handle === 'n') {
+          scaleY = (box.height - dy) / box.height;
+          pivotY = box.y + box.height;
+        } else if (handle === 's') {
+          scaleY = (box.height + dy) / box.height;
+          pivotY = box.y;
+        } else if (handle === 'w') {
+          scaleX = (box.width - dx) / box.width;
+          pivotX = box.x + box.width;
+        } else if (handle === 'e') {
+          scaleX = (box.width + dx) / box.width;
+          pivotX = box.x;
         }
 
         scaleX = Math.max(0.1, scaleX);
         scaleY = Math.max(0.1, scaleY);
 
         for (const el of state.selectedElements) {
-          scaleElement(el, scaleX, scaleY, centerX, centerY);
+          scaleElement(el, scaleX, scaleY, pivotX, pivotY);
         }
 
         actions.setTransformStart(point);
@@ -192,10 +212,10 @@ export const SelectTool: BaseTool = {
         const selectedArray = Array.from(state.selectedElements);
         if (selectedArray.length === 1 && (selectedArray[0].type === 'line' || selectedArray[0].type === 'arrow')) {
           const el = selectedArray[0];
-          const data = el.data as { startX: number; startY: number; endX: number; endY: number };
-          const lineHandle = hitTestLineHandle(point, data.startX, data.startY, data.endX, data.endY);
+          const data = el.data as { startX: number; startY: number; endX: number; endY: number; controlX?: number; controlY?: number };
+          const lineHandle = hitTestLineHandle(point, data.startX, data.startY, data.endX, data.endY, data.controlX, data.controlY);
           if (lineHandle) {
-            context.canvas.style.cursor = 'crosshair';
+            context.canvas.style.cursor = lineHandle === 'mid' ? 'grab' : 'crosshair';
             return;
           }
         }
@@ -205,12 +225,16 @@ export const SelectTool: BaseTool = {
             ? state.initialSelectionBox
             : getSelectionBoundingBox(state.selectedElements, context.ctx);
 
-        const handle = hitTestHandle(point, box, state.selectionRotation);
-        if (handle === 'rotate') {
+        const hoverHandle = hitTestHandle(point, box, state.selectionRotation);
+        if (hoverHandle === 'rotate') {
           context.canvas.style.cursor = 'grab';
-        } else if (handle) {
+        } else if (hoverHandle === 'n' || hoverHandle === 's') {
+          context.canvas.style.cursor = 'ns-resize';
+        } else if (hoverHandle === 'e' || hoverHandle === 'w') {
+          context.canvas.style.cursor = 'ew-resize';
+        } else if (hoverHandle) {
           context.canvas.style.cursor =
-            handle === 'nw' || handle === 'se' ? 'nwse-resize' : 'nesw-resize';
+            hoverHandle === 'nw' || hoverHandle === 'se' ? 'nwse-resize' : 'nesw-resize';
         } else {
           const hitElement = hitTest(point, state.elements, context.ctx);
           context.canvas.style.cursor = hitElement ? 'move' : 'crosshair';

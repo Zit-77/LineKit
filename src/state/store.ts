@@ -11,6 +11,7 @@ import type {
   Arrow,
   SelectionInfo,
   Line,
+  HandleType,
 } from '../types';
 import {
   DEFAULT_TEXT_SIZE,
@@ -78,7 +79,7 @@ interface State {
   isCreatingLine: boolean;
 
   // Transform state
-  activeHandle: 'nw' | 'ne' | 'sw' | 'se' | 'rotate' | 'start' | 'end' | null;
+  activeHandle: HandleType;
   initialSelectionBox: BoundingBox | null;
   transformStart: Point;
   dragStart: Point;

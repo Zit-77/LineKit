@@ -3,6 +3,7 @@ import type { Point } from '../../types';
 import { store } from '../../state/store';
 import * as actions from '../../state/actions';
 
+
 export const DrawTool: BaseTool = {
   name: 'draw',
   cursor: 'crosshair',

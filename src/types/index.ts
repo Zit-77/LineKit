@@ -5,7 +5,7 @@ export type ShapeType = 'triangle' | 'square' | 'rectangle' | 'circle' | 'ellips
 
 export type FontStyle = 'normal' | 'bold' | 'italic';
 
-export type HandleType = 'nw' | 'ne' | 'sw' | 'se' | 'rotate' | 'start' | 'end' | null;
+export type HandleType = 'nw' | 'ne' | 'sw' | 'se' | 'n' | 's' | 'e' | 'w' | 'rotate' | 'start' | 'end' | 'mid' | null;
 
 // Element data types
 export interface TextBlock {
@@ -47,6 +47,8 @@ export interface Line {
   endY: number;
   color: string;
   lineWidth: number;
+  controlX?: number;
+  controlY?: number;
 }
 
 export interface Arrow {
@@ -56,6 +58,8 @@ export interface Arrow {
   endY: number;
   color: string;
   lineWidth: number;
+  controlX?: number;
+  controlY?: number;
 }
 
 // Canvas element union type

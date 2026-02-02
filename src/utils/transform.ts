@@ -19,11 +19,15 @@ export function moveElement(el: CanvasElement, dx: number, dy: number) {
     el.data.startY += dy;
     el.data.endX += dx;
     el.data.endY += dy;
+    if (el.data.controlX !== undefined) el.data.controlX += dx;
+    if (el.data.controlY !== undefined) el.data.controlY += dy;
   } else if (el.type === 'line') {
     el.data.startX += dx;
     el.data.startY += dy;
     el.data.endX += dx;
     el.data.endY += dy;
+    if (el.data.controlX !== undefined) el.data.controlX += dx;
+    if (el.data.controlY !== undefined) el.data.controlY += dy;
   }
 }
 
@@ -78,12 +82,16 @@ export function scaleElement(
     arrow.startY = centerY + (arrow.startY - centerY) * scaleY;
     arrow.endX = centerX + (arrow.endX - centerX) * scaleX;
     arrow.endY = centerY + (arrow.endY - centerY) * scaleY;
+    if (arrow.controlX !== undefined) arrow.controlX = centerX + (arrow.controlX - centerX) * scaleX;
+    if (arrow.controlY !== undefined) arrow.controlY = centerY + (arrow.controlY - centerY) * scaleY;
   } else if (el.type === 'line') {
     const line = el.data;
     line.startX = centerX + (line.startX - centerX) * scaleX;
     line.startY = centerY + (line.startY - centerY) * scaleY;
     line.endX = centerX + (line.endX - centerX) * scaleX;
     line.endY = centerY + (line.endY - centerY) * scaleY;
+    if (line.controlX !== undefined) line.controlX = centerX + (line.controlX - centerX) * scaleX;
+    if (line.controlY !== undefined) line.controlY = centerY + (line.controlY - centerY) * scaleY;
   }
 }
 
@@ -145,6 +153,14 @@ export function rotateElement(
     const dy2 = arrow.endY - pivotY;
     arrow.endX = pivotX + dx2 * cos - dy2 * sin;
     arrow.endY = pivotY + dx2 * sin + dy2 * cos;
+
+    // Rotate control point
+    if (arrow.controlX !== undefined && arrow.controlY !== undefined) {
+      const dx3 = arrow.controlX - pivotX;
+      const dy3 = arrow.controlY - pivotY;
+      arrow.controlX = pivotX + dx3 * cos - dy3 * sin;
+      arrow.controlY = pivotY + dx3 * sin + dy3 * cos;
+    }
   } else if (el.type === 'line') {
     const line = el.data;
 
@@ -159,5 +175,13 @@ export function rotateElement(
     const dy2 = line.endY - pivotY;
     line.endX = pivotX + dx2 * cos - dy2 * sin;
     line.endY = pivotY + dx2 * sin + dy2 * cos;
+
+    // Rotate control point
+    if (line.controlX !== undefined && line.controlY !== undefined) {
+      const dx3 = line.controlX - pivotX;
+      const dy3 = line.controlY - pivotY;
+      line.controlX = pivotX + dx3 * cos - dy3 * sin;
+      line.controlY = pivotY + dx3 * sin + dy3 * cos;
+    }
   }
 }

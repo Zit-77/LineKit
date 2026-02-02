@@ -1,8 +1,8 @@
 import type { Tool, SelectionInfo } from '../types';
 import { store } from '../state/store';
 import * as actions from '../state/actions';
-import { getCanvasPoint, getSelectionBoundingBox } from '../utils/geometry';
-import { drawPath, drawText, drawShape, drawArrow, drawSelectionUI, drawLineSelectionUI, drawMarquee, drawLine } from './renderer';
+import { getCanvasPoint, getSelectionBoundingBox, getBoundingBox, boxesIntersect } from '../utils/geometry';
+import { drawPath, drawText, drawShape, drawArrow, drawSelectionUI, drawLineSelectionUI, drawMarquee, drawLine, drawElementBoundingBox } from './renderer';
 import { tools } from './tools';
 import type { ToolContext } from './tools';
 
@@ -14,6 +14,7 @@ export function createCanvas(element: HTMLCanvasElement) {
     canvas: element,
     ctx,
     render,
+    setTool,
   };
 
   function resize() {
@@ -70,14 +71,25 @@ export function createCanvas(element: HTMLCanvasElement) {
 
     // Draw selection UI
     if (state.selectedElements.size > 0 && !state.isMarqueeSelecting) {
-      // Check if single line or arrow is selected
       const selectedArray = Array.from(state.selectedElements);
+
+      // Draw individual bounding boxes when multiple elements are selected
+      if (selectedArray.length > 1) {
+        for (const el of selectedArray) {
+          const elBox = getBoundingBox(el, ctx);
+          if (elBox) {
+            drawElementBoundingBox(ctx, elBox);
+          }
+        }
+      }
+
+      // Check if single line or arrow is selected
       if (selectedArray.length === 1 && (selectedArray[0].type === 'line' || selectedArray[0].type === 'arrow')) {
         const el = selectedArray[0];
         if (el.type === 'line') {
-          drawLineSelectionUI(ctx, el.data.startX, el.data.startY, el.data.endX, el.data.endY);
+          drawLineSelectionUI(ctx, el.data.startX, el.data.startY, el.data.endX, el.data.endY, el.data.controlX, el.data.controlY);
         } else if (el.type === 'arrow') {
-          drawLineSelectionUI(ctx, el.data.startX, el.data.startY, el.data.endX, el.data.endY);
+          drawLineSelectionUI(ctx, el.data.startX, el.data.startY, el.data.endX, el.data.endY, el.data.controlX, el.data.controlY);
         }
       } else {
         const box =
@@ -93,6 +105,22 @@ export function createCanvas(element: HTMLCanvasElement) {
     // Draw marquee selection box
     if (state.isMarqueeSelecting) {
       drawMarquee(ctx, state.marqueeStart.x, state.marqueeStart.y, state.marqueeEnd.x, state.marqueeEnd.y);
+
+      // Show individual bounding boxes for elements intersecting the marquee
+      const marqueeBox = {
+        x: Math.min(state.marqueeStart.x, state.marqueeEnd.x),
+        y: Math.min(state.marqueeStart.y, state.marqueeEnd.y),
+        width: Math.abs(state.marqueeEnd.x - state.marqueeStart.x),
+        height: Math.abs(state.marqueeEnd.y - state.marqueeStart.y),
+      };
+      if (marqueeBox.width > 2 || marqueeBox.height > 2) {
+        for (const el of state.elements) {
+          const elBox = getBoundingBox(el, ctx);
+          if (elBox && boxesIntersect(marqueeBox, elBox)) {
+            drawElementBoundingBox(ctx, elBox);
+          }
+        }
+      }
     }
 
     ctx.restore();

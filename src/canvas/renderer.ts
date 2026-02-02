@@ -195,10 +195,7 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
 }
 
 export function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
-  const { startX, startY, endX, endY, color, lineWidth } = line;
-
-  const angle = Math.atan2(endY - startY, endX - startX);
-  const headLength = Math.max(lineWidth * 5, 20);
+  const { startX, startY, endX, endY, color, lineWidth, controlX, controlY } = line;
 
   ctx.save();
   ctx.strokeStyle = color;
@@ -207,26 +204,30 @@ export function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  // Draw line (para um pouco antes da ponta)
-  const lineEndX = endX - headLength * 0.5 * Math.cos(angle);
-  const lineEndY = endY - headLength * 0.5 * Math.sin(angle);
   ctx.beginPath();
   ctx.moveTo(startX, startY);
-  ctx.lineTo(lineEndX, lineEndY);
+  if (controlX !== undefined && controlY !== undefined) {
+    ctx.quadraticCurveTo(controlX, controlY, endX, endY);
+  } else {
+    ctx.lineTo(endX, endY);
+  }
   ctx.stroke();
 
   ctx.restore();
-
 }
 
 
 
 export function drawArrow(ctx: CanvasRenderingContext2D, arrow: Arrow) {
-  const { startX, startY, endX, endY, color, lineWidth } = arrow;
+  const { startX, startY, endX, endY, color, lineWidth, controlX, controlY } = arrow;
 
-  const angle = Math.atan2(endY - startY, endX - startX);
+  const hasCurve = controlX !== undefined && controlY !== undefined;
+  // For curves, the tangent at the end follows control->end direction
+  const angle = hasCurve
+    ? Math.atan2(endY - controlY!, endX - controlX!)
+    : Math.atan2(endY - startY, endX - startX);
   const headLength = Math.max(lineWidth * 5, 20);
-  const headAngle = Math.PI / 4; // 45 graus - mais aberto
+  const headAngle = Math.PI / 4;
 
   ctx.save();
   ctx.strokeStyle = color;
@@ -235,21 +236,24 @@ export function drawArrow(ctx: CanvasRenderingContext2D, arrow: Arrow) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  // Draw line (para um pouco antes da ponta)
+  // Draw line body (para um pouco antes da ponta)
   const lineEndX = endX - headLength * 0.5 * Math.cos(angle);
   const lineEndY = endY - headLength * 0.5 * Math.sin(angle);
   ctx.beginPath();
   ctx.moveTo(startX, startY);
-  ctx.lineTo(lineEndX, lineEndY);
+  if (hasCurve) {
+    ctx.quadraticCurveTo(controlX!, controlY!, lineEndX, lineEndY);
+  } else {
+    ctx.lineTo(lineEndX, lineEndY);
+  }
   ctx.stroke();
 
-  // Draw arrowhead - formato ">" maior
+  // Draw arrowhead
   const point1X = endX - headLength * Math.cos(angle - headAngle);
   const point1Y = endY - headLength * Math.sin(angle - headAngle);
   const point2X = endX - headLength * Math.cos(angle + headAngle);
   const point2Y = endY - headLength * Math.sin(angle + headAngle);
 
-  // Ponto de recuo (para dar forma de seta)
   const backX = endX - headLength * 0.4 * Math.cos(angle);
   const backY = endY - headLength * 0.4 * Math.sin(angle);
 
@@ -261,6 +265,37 @@ export function drawArrow(ctx: CanvasRenderingContext2D, arrow: Arrow) {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
+
+  ctx.restore();
+}
+
+export function drawElementBoundingBox(
+  ctx: CanvasRenderingContext2D,
+  box: BoundingBox
+) {
+  const padding = 4;
+  const centerX = box.x + box.width / 2;
+  const centerY = box.y + box.height / 2;
+  const rotation = box.rotation ?? 0;
+
+  ctx.save();
+
+  if (rotation !== 0) {
+    ctx.translate(centerX, centerY);
+    ctx.rotate(rotation);
+    ctx.translate(-centerX, -centerY);
+  }
+
+  ctx.strokeStyle = SELECTION_COLOR;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.globalAlpha = 0.5;
+  ctx.strokeRect(
+    box.x - padding,
+    box.y - padding,
+    box.width + padding * 2,
+    box.height + padding * 2
+  );
 
   ctx.restore();
 }
@@ -312,6 +347,22 @@ export function drawSelectionUI(
   ctx.fillRect(x + width - HANDLE_SIZE / 2, y + height - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
   ctx.strokeRect(x + width - HANDLE_SIZE / 2, y + height - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
 
+  // N handle (top center)
+  ctx.fillRect(x + width / 2 - HANDLE_SIZE / 2, y - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
+  ctx.strokeRect(x + width / 2 - HANDLE_SIZE / 2, y - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
+
+  // S handle (bottom center)
+  ctx.fillRect(x + width / 2 - HANDLE_SIZE / 2, y + height - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
+  ctx.strokeRect(x + width / 2 - HANDLE_SIZE / 2, y + height - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
+
+  // W handle (left center)
+  ctx.fillRect(x - HANDLE_SIZE / 2, y + height / 2 - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
+  ctx.strokeRect(x - HANDLE_SIZE / 2, y + height / 2 - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
+
+  // E handle (right center)
+  ctx.fillRect(x + width - HANDLE_SIZE / 2, y + height / 2 - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
+  ctx.strokeRect(x + width - HANDLE_SIZE / 2, y + height / 2 - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
+
   // Rotate handle (top center)
   const rotateX = x + width / 2;
   const rotateY = y - ROTATE_HANDLE_OFFSET;
@@ -336,24 +387,44 @@ export function drawLineSelectionUI(
   startX: number,
   startY: number,
   endX: number,
-  endY: number
+  endY: number,
+  controlX?: number,
+  controlY?: number
 ) {
   const handleRadius = 6;
+
+  // The visible handle sits ON the curve at t=0.5
+  // For quadratic bezier: B(0.5) = 0.25*P0 + 0.5*CP + 0.25*P2
+  let curveX: number;
+  let curveY: number;
+  if (controlX !== undefined && controlY !== undefined) {
+    curveX = 0.25 * startX + 0.5 * controlX + 0.25 * endX;
+    curveY = 0.25 * startY + 0.5 * controlY + 0.25 * endY;
+  } else {
+    curveX = (startX + endX) / 2;
+    curveY = (startY + endY) / 2;
+  }
 
   ctx.save();
   ctx.fillStyle = 'white';
   ctx.strokeStyle = SELECTION_COLOR;
   ctx.lineWidth = 2;
 
-  // Draw start handle (circle)
+  // Draw start handle
   ctx.beginPath();
   ctx.arc(startX, startY, handleRadius, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
-  // Draw end handle (circle)
+  // Draw end handle
   ctx.beginPath();
   ctx.arc(endX, endY, handleRadius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Draw mid handle (on the curve)
+  ctx.beginPath();
+  ctx.arc(curveX, curveY, handleRadius, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 

@@ -35,7 +35,14 @@ export const ArrowTool: BaseTool = {
     }
   },
 
-  onMouseUp(_e: MouseEvent, _point: Point, _context: ToolContext) {
+  onMouseUp(_e: MouseEvent, _point: Point, context: ToolContext) {
+    const state = store.getState();
+    const countBefore = state.elements.length;
     actions.commitCurrentArrow();
+    if (state.elements.length > countBefore) {
+      const newElement = state.elements[state.elements.length - 1];
+      context.setTool('select');
+      actions.selectElement(newElement);
+    }
   },
 };
