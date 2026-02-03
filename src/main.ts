@@ -1,5 +1,5 @@
 import { createCanvas } from './canvas';
-import { setupMenu, setupToolbar, setupShapePanel, setupSidePanel, setupZoomControls, setupHistoryControls } from './components';
+import { setupMenu, setupToolbar, setupShapePanel, setupSidePanel, setupZoomControls, setupHistoryControls, setupElementInfoPanel } from './components';
 import './style.css';
 
 // Create HTML structure
@@ -226,6 +226,56 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </div>
     </div>
   </div>
+  <div id='element-info-panel' class='hidden'>
+    <div class='info-header'>
+      <span class='info-title'>Element</span>
+      <span id='element-type' class='info-badge'>-</span>
+    </div>
+    <div class='info-section'>
+      <span class='info-label'>Position</span>
+      <div class='info-row'>
+        <div class='info-field'>
+          <label>X</label>
+          <input type='number' id='element-x' class='info-input' />
+        </div>
+        <div class='info-field'>
+          <label>Y</label>
+          <input type='number' id='element-y' class='info-input' />
+        </div>
+      </div>
+    </div>
+    <div class='info-section'>
+      <span class='info-label'>Size</span>
+      <div class='info-row'>
+        <div class='info-field'>
+          <label>W</label>
+          <input type='number' id='element-width' class='info-input' />
+        </div>
+        <div class='info-field'>
+          <label>H</label>
+          <input type='number' id='element-height' class='info-input' />
+        </div>
+      </div>
+    </div>
+    <div class='info-section'>
+      <span class='info-label'>Rotation</span>
+      <div class='info-row'>
+        <div class='info-field full'>
+          <input type='number' id='element-rotation' class='info-input' />
+          <span class='info-unit'>°</span>
+        </div>
+      </div>
+    </div>
+    <div class='info-section' id='element-stroke-section'>
+      <span class='info-label'>Stroke</span>
+      <div class='info-row'>
+        <div class='info-field full'>
+          <label>Width</label>
+          <input type='number' id='element-stroke-width' class='info-input' step='0.5' />
+        </div>
+      </div>
+    </div>
+  </div>
 `;
 
 // Initialize canvas
@@ -239,3 +289,4 @@ setupShapePanel(canvas);
 setupSidePanel(canvas);
 setupZoomControls(canvas);
 setupHistoryControls(canvas);
+setupElementInfoPanel(canvas);

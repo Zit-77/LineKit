@@ -10,7 +10,8 @@ import {
   getSelectionBoundingBox,
   boxesIntersect,
 } from '../../utils/geometry';
-import { moveElement, scaleElement, rotateElement } from '../../utils/transform';
+import { moveElement, rotateElement, scaleElement } from '../../elements';
+
 
 export const SelectTool: BaseTool = {
   name: 'select',
@@ -121,6 +122,7 @@ export const SelectTool: BaseTool = {
           data.controlY = 2 * point.y - 0.5 * data.startY - 0.5 * data.endY;
         }
 
+        store.notify();
         context.render();
         return;
       }
@@ -191,6 +193,7 @@ export const SelectTool: BaseTool = {
         actions.setInitialSelectionBox(getSelectionBoundingBox(state.selectedElements, context.ctx));
       }
 
+      store.notify();
       context.render();
     } else if (state.isMarqueeSelecting) {
       actions.setMarqueeEnd(point);
@@ -204,6 +207,7 @@ export const SelectTool: BaseTool = {
       }
 
       actions.setDragStart(point);
+      store.notify();
       context.render();
     } else {
       // Update cursor based on what's under the mouse
@@ -312,8 +316,15 @@ export const SelectTool: BaseTool = {
   onKeyDown(e: KeyboardEvent, context: ToolContext) {
     const state = store.getState();
 
+    // Não deletar se o foco está em um input ou textarea
+    const activeElement = document.activeElement;
+    const isInputFocused = activeElement instanceof HTMLInputElement ||
+      activeElement instanceof HTMLTextAreaElement;
+
+    
+
     if (e.key === 'Delete' || e.key === 'Backspace') {
-      if (state.selectedElements.size > 0) {
+      if (state.selectedElements.size > 0 && !isInputFocused) {
         actions.removeSelectedElements();
         context.render();
       }
