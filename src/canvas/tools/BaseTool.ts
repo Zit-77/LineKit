@@ -12,7 +12,7 @@ export interface BaseTool {
   cursor: string;
 
   onActivate?(context: ToolContext): void;
-  onDeactivate?(context: ToolContext): void;
+  // onDeactivate?(context: ToolContext): void;
 
   onMouseDown?(e: MouseEvent, point: Point, context: ToolContext): void;
   onMouseMove?(e: MouseEvent, point: Point, context: ToolContext): void;

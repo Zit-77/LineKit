@@ -1,5 +1,5 @@
 import type { BaseTool, ToolContext } from './BaseTool';
-import type { Point, BoundingBox } from '../../types';
+import type { Point, BoundingBox, CanvasElement } from '../../types';
 import { store } from '../../state/store';
 import * as actions from '../../state/actions';
 import {
@@ -12,6 +12,24 @@ import {
 } from '../../utils/geometry';
 import { moveElement, rotateElement, scaleElement } from '../../elements';
 
+// Clipboard para copiar/colar elementos
+let clipboard: CanvasElement[] = [];
+let clipboardCenter: Point = { x: 0, y: 0 };
+
+// Última posição do mouse para colar elementos
+let lastMousePosition: Point = { x: 0, y: 0 };
+
+// Get the rotation of a single element, or 0 for multiple/no elements
+function getElementRotation(selectedElements: Set<CanvasElement>, selectionRotation: number): number {
+  if (selectionRotation !== 0) return selectionRotation;
+  if (selectedElements.size !== 1) return 0;
+
+  const el = Array.from(selectedElements)[0];
+  if (el.type === 'shape') return el.data.rotation;
+  if (el.type === 'text') return el.data.rotation;
+  if (el.type === 'path') return el.data.rotation;
+  return 0;
+}
 
 export const SelectTool: BaseTool = {
   name: 'select',
@@ -46,13 +64,20 @@ export const SelectTool: BaseTool = {
           ? state.initialSelectionBox
           : getSelectionBoundingBox(state.selectedElements, context.ctx);
 
-      const handle = hitTestHandle(point, box, state.selectionRotation);
+      const rotation = getElementRotation(state.selectedElements, state.selectionRotation);
+      const handle = hitTestHandle(point, box, rotation);
       if (handle) {
         actions.setActiveHandle(handle);
         actions.setTransformStart(point);
         actions.setInitialSelectionBox(getSelectionBoundingBox(state.selectedElements, context.ctx));
 
         if (handle === 'rotate') {
+          // Initialize selectionRotation with element's current rotation for single elements
+          const elementRotation = getElementRotation(state.selectedElements, 0);
+          if (elementRotation !== 0 && state.selectionRotation === 0) {
+            actions.setSelectionRotation(elementRotation);
+          }
+
           const selBox = state.initialSelectionBox!;
           actions.setRotationCenter({
             x: selBox.x + selBox.width / 2,
@@ -99,6 +124,10 @@ export const SelectTool: BaseTool = {
 
   onMouseMove(_e: MouseEvent, point: Point, context: ToolContext) {
     const state = store.getState();
+
+    // Atualiza a última posição do mouse para o paste
+    lastMousePosition = point;
+
 
     // Handle line/arrow endpoint and control point dragging
     if (state.activeHandle && (state.activeHandle === 'start' || state.activeHandle === 'end' || state.activeHandle === 'mid')) {
@@ -229,7 +258,8 @@ export const SelectTool: BaseTool = {
             ? state.initialSelectionBox
             : getSelectionBoundingBox(state.selectedElements, context.ctx);
 
-        const hoverHandle = hitTestHandle(point, box, state.selectionRotation);
+        const rotation = getElementRotation(state.selectedElements, state.selectionRotation);
+        const hoverHandle = hitTestHandle(point, box, rotation);
         if (hoverHandle === 'rotate') {
           context.canvas.style.cursor = 'grab';
         } else if (hoverHandle === 'n' || hoverHandle === 's') {
@@ -316,15 +346,109 @@ export const SelectTool: BaseTool = {
   onKeyDown(e: KeyboardEvent, context: ToolContext) {
     const state = store.getState();
 
-    // Não deletar se o foco está em um input ou textarea
+    // Não processar se o foco está em um input ou textarea
     const activeElement = document.activeElement;
     const isInputFocused = activeElement instanceof HTMLInputElement ||
       activeElement instanceof HTMLTextAreaElement;
 
-    
+    if (isInputFocused) return;
+
+    // Ctrl+C - Copiar elementos selecionados
+    if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+      if (state.selectedElements.size > 0) {
+        e.preventDefault();
+        // Deep clone dos elementos selecionados
+        clipboard = Array.from(state.selectedElements).map(el =>
+          JSON.parse(JSON.stringify(el)) as CanvasElement
+        );
+
+        // Calcular o centro dos elementos copiados
+        const box = getSelectionBoundingBox(state.selectedElements, context.ctx);
+        if (box) {
+          clipboardCenter = {
+            x: box.x + box.width / 2,
+            y: box.y + box.height / 2,
+          };
+        }
+      }
+      return;
+    }
+
+    // Ctrl+V - Colar elementos na posição do mouse
+    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+      if (clipboard.length > 0) {
+        e.preventDefault();
+
+        // Calcular offset para posicionar os elementos na posição do mouse
+        const offsetX = lastMousePosition.x - clipboardCenter.x;
+        const offsetY = lastMousePosition.y - clipboardCenter.y;
+
+        // Limpar seleção atual
+        actions.clearSelection();
+
+        // Colar cada elemento com posição ajustada
+        store.saveSnapshot();
+        const newElements: CanvasElement[] = [];
+
+        for (const el of clipboard) {
+          const cloned = JSON.parse(JSON.stringify(el)) as CanvasElement;
+
+          // Ajustar posição baseado no tipo do elemento
+          if (cloned.type === 'text') {
+            cloned.data.x += offsetX;
+            cloned.data.y += offsetY;
+          } else if (cloned.type === 'path') {
+            for (const point of cloned.data.points) {
+              point.x += offsetX;
+              point.y += offsetY;
+            }
+            cloned.data.centerX += offsetX;
+            cloned.data.centerY += offsetY;
+          } else if (cloned.type === 'shape') {
+            cloned.data.x += offsetX;
+            cloned.data.y += offsetY;
+          } else if (cloned.type === 'arrow') {
+            cloned.data.startX += offsetX;
+            cloned.data.startY += offsetY;
+            cloned.data.endX += offsetX;
+            cloned.data.endY += offsetY;
+            if (cloned.data.controlX !== undefined) {
+              cloned.data.controlX += offsetX;
+            }
+            if (cloned.data.controlY !== undefined) {
+              cloned.data.controlY += offsetY;
+            }
+          } else if (cloned.type === 'line') {
+            cloned.data.startX += offsetX;
+            cloned.data.startY += offsetY;
+            cloned.data.endX += offsetX;
+            cloned.data.endY += offsetY;
+            if (cloned.data.controlX !== undefined) {
+              cloned.data.controlX += offsetX;
+            }
+            if (cloned.data.controlY !== undefined) {
+              cloned.data.controlY += offsetY;
+            }
+          }
+
+          state.elements.push(cloned);
+          newElements.push(cloned);
+        }
+
+        // Selecionar os elementos colados
+        for (const el of newElements) {
+          state.selectedElements.add(el);
+        }
+
+        store.notifySelectionChange();
+        store.notify();
+        context.render();
+      }
+      return;
+    }
 
     if (e.key === 'Delete' || e.key === 'Backspace') {
-      if (state.selectedElements.size > 0 && !isInputFocused) {
+      if (state.selectedElements.size > 0) {
         actions.removeSelectedElements();
         context.render();
       }

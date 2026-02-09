@@ -97,7 +97,19 @@ export function createCanvas(element: HTMLCanvasElement) {
             ? state.initialSelectionBox
             : getSelectionBoundingBox(state.selectedElements, ctx);
         if (box) {
-          drawSelectionUI(ctx, box, state.selectionRotation);
+          // For single element, use element's rotation; for multiple or during rotation, use selectionRotation
+          let rotation = state.selectionRotation;
+          if (selectedArray.length === 1 && state.selectionRotation === 0) {
+            const el = selectedArray[0];
+            if (el.type === 'shape') {
+              rotation = el.data.rotation;
+            } else if (el.type === 'text') {
+              rotation = el.data.rotation;
+            } else if (el.type === 'path') {
+              rotation = el.data.rotation;
+            }
+          }
+          drawSelectionUI(ctx, box, rotation);
         }
       }
     }
@@ -180,15 +192,10 @@ export function createCanvas(element: HTMLCanvasElement) {
   }
 
   function setTool(tool: Tool) {
-    const currentTool = tools[state.currentTool];
-    currentTool.onDeactivate?.(context);
-
     actions.setTool(tool);
-
     const newTool = tools[tool];
     newTool.onActivate?.(context);
     element.style.cursor = newTool.cursor;
-
     render();
   }
 

@@ -20,6 +20,7 @@ export const DrawTool: BaseTool = {
       points: [point],
       lineWidth: state.strokeWidth,
       color: state.strokeColor,
+      opacity: state.strokeOpacity,
       rotation: 0,
       centerX: point.x,
       centerY: point.y,

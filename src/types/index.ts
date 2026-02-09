@@ -15,6 +15,7 @@ export interface TextBlock {
   fontSize: number;
   fontStyle: FontStyle;
   color: string;
+  opacity: number;
   rotation: number;
 }
 
@@ -22,6 +23,7 @@ export interface DrawPath {
   points: Point[];
   lineWidth: number;
   color: string;
+  opacity: number;
   rotation: number;
   centerX: number;
   centerY: number;
@@ -34,7 +36,9 @@ export interface Shape {
   width: number;
   height: number;
   fillColor: string;
+  fillOpacity: number;
   strokeColor: string;
+  strokeOpacity: number;
   strokeWidth: number;
   borderRadius: number;
   rotation: number;
@@ -46,6 +50,7 @@ export interface Line {
   endX: number;
   endY: number;
   color: string;
+  opacity: number;
   lineWidth: number;
   controlX?: number;
   controlY?: number;
@@ -57,6 +62,7 @@ export interface Arrow {
   endX: number;
   endY: number;
   color: string;
+  opacity: number;
   lineWidth: number;
   controlX?: number;
   controlY?: number;

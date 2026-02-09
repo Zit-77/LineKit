@@ -295,19 +295,101 @@ button:active {
   box-shadow: 0 0 0 2px hsl(var(--ring));
 }
 
+/* Color palette grid */
+.color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 140px;
+}
+
 .color-btn,
 .stroke-color-btn {
-  width: 2rem;
-  height: 2rem;
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: 50%;
   border: 2px solid transparent;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .color-btn.active,
 .stroke-color-btn.active {
   border-color: hsl(var(--ring));
   box-shadow: 0 0 0 2px hsl(var(--background));
+}
+
+/* Color picker input */
+.color-picker {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+  flex-shrink: 0;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-picker::-webkit-color-swatch {
+  border: 2px solid hsl(var(--border));
+  border-radius: 50%;
+}
+
+.color-picker::-moz-color-swatch {
+  border: 2px solid hsl(var(--border));
+  border-radius: 50%;
+}
+
+/* Opacity slider */
+.opacity-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.opacity-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, transparent, hsl(var(--foreground)));
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.opacity-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: hsl(var(--foreground));
+  border: 2px solid hsl(var(--background));
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.opacity-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: hsl(var(--foreground));
+  border: 2px solid hsl(var(--background));
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.opacity-value {
+  font-size: 0.6875rem;
+  color: hsl(var(--muted-foreground));
+  min-width: 32px;
+  text-align: right;
 }
 
 /* Shape panel */
@@ -356,11 +438,12 @@ button:active {
 /* Shape options */
 .shape-fill-btn,
 .shape-stroke-btn {
-  width: 2rem;
-  height: 2rem;
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: 50%;
   border: 2px solid transparent;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .shape-fill-btn.active,

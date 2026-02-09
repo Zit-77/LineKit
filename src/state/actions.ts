@@ -168,7 +168,7 @@ export function setTextStyle(style: FontStyle) {
 
 export function setTextColor(color: string) {
   state.textColor = color;
-  // 
+  //
   if (state.activeTextBlock) {
     state.activeTextBlock.color = color;
   }
@@ -176,6 +176,19 @@ export function setTextColor(color: string) {
   for (const el of state.selectedElements) {
     if (el.type === 'text') {
       el.data.color = color;
+    }
+  }
+  store.notify();
+}
+
+export function setTextOpacity(opacity: number) {
+  state.textOpacity = opacity;
+  if (state.activeTextBlock) {
+    state.activeTextBlock.opacity = opacity;
+  }
+  for (const el of state.selectedElements) {
+    if (el.type === 'text') {
+      el.data.opacity = opacity;
     }
   }
   store.notify();
@@ -209,6 +222,20 @@ export function setStrokeColor(color: string) {
   store.notify();
 }
 
+export function setStrokeOpacity(opacity: number) {
+  state.strokeOpacity = opacity;
+  for (const el of state.selectedElements) {
+    if (el.type === 'path') {
+      el.data.opacity = opacity;
+    } else if (el.type === 'arrow') {
+      el.data.opacity = opacity;
+    } else if (el.type === 'line') {
+      el.data.opacity = opacity;
+    }
+  }
+  store.notify();
+}
+
 export function setShapeType(shapeType: ShapeType) {
   state.shapeType = shapeType;
 }
@@ -223,11 +250,31 @@ export function setShapeFillColor(color: string) {
   store.notify();
 }
 
+export function setShapeFillOpacity(opacity: number) {
+  state.shapeFillOpacity = opacity;
+  for (const el of state.selectedElements) {
+    if (el.type === 'shape') {
+      el.data.fillOpacity = opacity;
+    }
+  }
+  store.notify();
+}
+
 export function setShapeStrokeColor(color: string) {
   state.shapeStrokeColor = color;
   for (const el of state.selectedElements) {
     if (el.type === 'shape') {
       el.data.strokeColor = color;
+    }
+  }
+  store.notify();
+}
+
+export function setShapeStrokeOpacity(opacity: number) {
+  state.shapeStrokeOpacity = opacity;
+  for (const el of state.selectedElements) {
+    if (el.type === 'shape') {
+      el.data.strokeOpacity = opacity;
     }
   }
   store.notify();

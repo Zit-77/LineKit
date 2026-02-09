@@ -344,6 +344,7 @@ export function setupElementInfoPanel(canvas: Canvas) {
 
   // Subscribe to state changes para atualizar quando elementos são modificados
   store.subscribe(() => {
+
     if (!isUpdating) {
       // Só atualiza se não estiver editando um input
       const activeElement = document.activeElement;

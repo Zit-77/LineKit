@@ -10,10 +10,14 @@ export const ZOOM_FACTOR = 1.2;
 // Default settings
 export const DEFAULT_TEXT_SIZE = 24;
 export const DEFAULT_TEXT_COLOR = '#ffffff';
+export const DEFAULT_TEXT_OPACITY = 1;
 export const DEFAULT_STROKE_WIDTH = 4;
 export const DEFAULT_STROKE_COLOR = '#ffffff';
+export const DEFAULT_STROKE_OPACITY = 1;
 export const DEFAULT_SHAPE_FILL_COLOR = 'transparent';
+export const DEFAULT_SHAPE_FILL_OPACITY = 1;
 export const DEFAULT_SHAPE_STROKE_COLOR = '#ffffff';
+export const DEFAULT_SHAPE_STROKE_OPACITY = 1;
 export const DEFAULT_SHAPE_STROKE_WIDTH = 2;
 export const DEFAULT_SHAPE_BORDER_RADIUS = 0;
 

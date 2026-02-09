@@ -23,6 +23,7 @@ export const LineTool: BaseTool = {
             endX: point.x,
             endY: point.y,
             color: state.strokeColor,
+            opacity: state.strokeOpacity,
             lineWidth: state.strokeWidth,
         });
     },

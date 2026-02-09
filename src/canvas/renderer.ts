@@ -12,6 +12,7 @@ export function drawPath(ctx: CanvasRenderingContext2D, path: DrawPath) {
     ctx.translate(-path.centerX, -path.centerY);
   }
 
+  ctx.globalAlpha = path.opacity ?? 1;
   ctx.strokeStyle = path.color;
   ctx.lineWidth = path.lineWidth;
   ctx.lineCap = 'round';
@@ -37,6 +38,7 @@ export function drawText(ctx: CanvasRenderingContext2D, block: TextBlock, showCu
     ctx.translate(-block.x, -block.y);
   }
 
+  ctx.globalAlpha = block.opacity ?? 1;
   const fontWeight = block.fontStyle === 'bold' ? 'bold' : 'normal';
   const fontStyleCss = block.fontStyle === 'italic' ? 'italic' : 'normal';
   ctx.font = `${fontStyleCss} ${fontWeight} ${fontSize}px sans-serif`;
@@ -57,10 +59,11 @@ export function drawText(ctx: CanvasRenderingContext2D, block: TextBlock, showCu
 }
 
 export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
-  const { x, y, width, height, shapeType, fillColor, strokeColor, strokeWidth, borderRadius, rotation } = shape;
+  const { x, y, width, height, shapeType, fillColor, fillOpacity, strokeColor, strokeOpacity, strokeWidth, borderRadius, rotation } = shape;
   const centerX = x + width / 2;
   const centerY = y + height / 2;
   const hasFill = fillColor !== 'transparent';
+  const hasStroke = strokeColor !== 'transparent' && strokeWidth > 0;
 
   ctx.save();
 
@@ -73,6 +76,8 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
   ctx.fillStyle = fillColor;
   ctx.strokeStyle = strokeColor;
   ctx.lineWidth = strokeWidth;
+  const baseFillOpacity = fillOpacity ?? 1;
+  const baseStrokeOpacity = strokeOpacity ?? 1;
 
   switch (shapeType) {
     case 'rectangle':
@@ -87,8 +92,14 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
       } else {
         ctx.rect(x, y, width, height);
       }
-      if (hasFill) ctx.fill();
-      if (strokeWidth > 0) ctx.stroke();
+      if (hasFill) {
+        ctx.globalAlpha = baseFillOpacity;
+        ctx.fill();
+      }
+      if (hasStroke) {
+        ctx.globalAlpha = baseStrokeOpacity;
+        ctx.stroke();
+      }
       break;
     }
 
@@ -98,8 +109,14 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
       const radiusY = height / 2;
       ctx.beginPath();
       ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
-      if (hasFill) ctx.fill();
-      if (strokeWidth > 0) ctx.stroke();
+      if (hasFill) {
+        ctx.globalAlpha = baseFillOpacity;
+        ctx.fill();
+      }
+      if (hasStroke) {
+        ctx.globalAlpha = baseStrokeOpacity;
+        ctx.stroke();
+      }
       break;
     }
 
@@ -109,8 +126,14 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
       ctx.lineTo(x + width, y + height);
       ctx.lineTo(x, y + height);
       ctx.closePath();
-      if (hasFill) ctx.fill();
-      if (strokeWidth > 0) ctx.stroke();
+      if (hasFill) {
+        ctx.globalAlpha = baseFillOpacity;
+        ctx.fill();
+      }
+      if (hasStroke) {
+        ctx.globalAlpha = baseStrokeOpacity;
+        ctx.stroke();
+      }
       break;
     }
 
@@ -121,8 +144,14 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
       ctx.lineTo(centerX, y + height);
       ctx.lineTo(x, centerY);
       ctx.closePath();
-      if (hasFill) ctx.fill();
-      if (strokeWidth > 0) ctx.stroke();
+      if (hasFill) {
+        ctx.globalAlpha = baseFillOpacity;
+        ctx.fill();
+      }
+      if (hasStroke) {
+        ctx.globalAlpha = baseStrokeOpacity;
+        ctx.stroke();
+      }
       break;
     }
 
@@ -138,14 +167,26 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
       ctx.lineTo(x + width, y + ellipseHeight / 2);
       ctx.ellipse(centerX, y + ellipseHeight / 2, width / 2, ellipseHeight / 2, 0, 0, Math.PI, true);
       ctx.closePath();
-      if (hasFill) ctx.fill();
-      if (strokeWidth > 0) ctx.stroke();
+      if (hasFill) {
+        ctx.globalAlpha = baseFillOpacity;
+        ctx.fill();
+      }
+      if (hasStroke) {
+        ctx.globalAlpha = baseStrokeOpacity;
+        ctx.stroke();
+      }
 
       // Draw top ellipse
       ctx.beginPath();
       ctx.ellipse(centerX, y + ellipseHeight / 2, width / 2, ellipseHeight / 2, 0, 0, Math.PI * 2);
-      if (hasFill) ctx.fill();
-      if (strokeWidth > 0) ctx.stroke();
+      if (hasFill) {
+        ctx.globalAlpha = baseFillOpacity;
+        ctx.fill();
+      }
+      if (hasStroke) {
+        ctx.globalAlpha = baseStrokeOpacity;
+        ctx.stroke();
+      }
       break;
     }
 
@@ -161,8 +202,14 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
       ctx.lineTo(centerX, baseY + baseHeight);
       ctx.closePath();
       ctx.fillStyle = fillColor;
-      if (hasFill) ctx.fill();
-      if (strokeWidth > 0) ctx.stroke();
+      if (hasFill) {
+        ctx.globalAlpha = baseFillOpacity;
+        ctx.fill();
+      }
+      if (hasStroke) {
+        ctx.globalAlpha = baseStrokeOpacity;
+        ctx.stroke();
+      }
 
       // Front right face
       ctx.beginPath();
@@ -171,8 +218,14 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
       ctx.lineTo(x + width, baseY + baseHeight / 2);
       ctx.closePath();
       ctx.fillStyle = fillColor;
-      if (hasFill) ctx.fill();
-      if (strokeWidth > 0) ctx.stroke();
+      if (hasFill) {
+        ctx.globalAlpha = baseFillOpacity;
+        ctx.fill();
+      }
+      if (hasStroke) {
+        ctx.globalAlpha = baseStrokeOpacity;
+        ctx.stroke();
+      }
 
       // Right face
       ctx.beginPath();
@@ -182,11 +235,13 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
       ctx.closePath();
       ctx.fillStyle = fillColor;
       if (hasFill) {
-        ctx.globalAlpha = 0.7;
+        ctx.globalAlpha = baseFillOpacity * 0.7;
         ctx.fill();
-        ctx.globalAlpha = 1;
       }
-      if (strokeWidth > 0) ctx.stroke();
+      if (hasStroke) {
+        ctx.globalAlpha = baseStrokeOpacity;
+        ctx.stroke();
+      }
       break;
     }
   }
@@ -195,9 +250,10 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
 }
 
 export function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
-  const { startX, startY, endX, endY, color, lineWidth, controlX, controlY } = line;
+  const { startX, startY, endX, endY, color, opacity, lineWidth, controlX, controlY } = line;
 
   ctx.save();
+  ctx.globalAlpha = opacity ?? 1;
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
   ctx.lineWidth = lineWidth;
@@ -219,7 +275,7 @@ export function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
 
 
 export function drawArrow(ctx: CanvasRenderingContext2D, arrow: Arrow) {
-  const { startX, startY, endX, endY, color, lineWidth, controlX, controlY } = arrow;
+  const { startX, startY, endX, endY, color, opacity, lineWidth, controlX, controlY } = arrow;
 
   const hasCurve = controlX !== undefined && controlY !== undefined;
   // For curves, the tangent at the end follows control->end direction
@@ -230,6 +286,7 @@ export function drawArrow(ctx: CanvasRenderingContext2D, arrow: Arrow) {
   const headAngle = Math.PI / 4;
 
   ctx.save();
+  ctx.globalAlpha = opacity ?? 1;
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
   ctx.lineWidth = lineWidth;

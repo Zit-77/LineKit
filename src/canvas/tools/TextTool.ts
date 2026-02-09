@@ -27,6 +27,7 @@ export const TextTool: BaseTool = {
       fontSize: state.textSize,
       fontStyle: state.textStyle,
       color: state.textColor,
+      opacity: state.textOpacity,
       rotation: 0,
     });
     context.render();

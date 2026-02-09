@@ -16,10 +16,14 @@ import type {
 import {
   DEFAULT_TEXT_SIZE,
   DEFAULT_TEXT_COLOR,
+  DEFAULT_TEXT_OPACITY,
   DEFAULT_STROKE_WIDTH,
   DEFAULT_STROKE_COLOR,
+  DEFAULT_STROKE_OPACITY,
   DEFAULT_SHAPE_FILL_COLOR,
+  DEFAULT_SHAPE_FILL_OPACITY,
   DEFAULT_SHAPE_STROKE_COLOR,
+  DEFAULT_SHAPE_STROKE_OPACITY,
   DEFAULT_SHAPE_STROKE_WIDTH,
   DEFAULT_SHAPE_BORDER_RADIUS,
 } from '../constants';
@@ -54,11 +58,15 @@ interface State {
   textSize: number;
   textStyle: FontStyle;
   textColor: string;
+  textOpacity: number;
   strokeWidth: number;
   strokeColor: string;
+  strokeOpacity: number;
   shapeType: ShapeType;
   shapeFillColor: string;
+  shapeFillOpacity: number;
   shapeStrokeColor: string;
+  shapeStrokeOpacity: number;
   shapeStrokeWidth: number;
   shapeBorderRadius: number;
 
@@ -115,11 +123,15 @@ function createStore() {
     textSize: DEFAULT_TEXT_SIZE,
     textStyle: 'normal',
     textColor: DEFAULT_TEXT_COLOR,
+    textOpacity: DEFAULT_TEXT_OPACITY,
     strokeWidth: DEFAULT_STROKE_WIDTH,
     strokeColor: DEFAULT_STROKE_COLOR,
+    strokeOpacity: DEFAULT_STROKE_OPACITY,
     shapeType: 'rectangle',
     shapeFillColor: DEFAULT_SHAPE_FILL_COLOR,
+    shapeFillOpacity: DEFAULT_SHAPE_FILL_OPACITY,
     shapeStrokeColor: DEFAULT_SHAPE_STROKE_COLOR,
+    shapeStrokeOpacity: DEFAULT_SHAPE_STROKE_OPACITY,
     shapeStrokeWidth: DEFAULT_SHAPE_STROKE_WIDTH,
     shapeBorderRadius: DEFAULT_SHAPE_BORDER_RADIUS,
 
@@ -268,7 +280,7 @@ function createStore() {
     getState: () => state,
 
     subscribe: (listener: Listener) => {
-      listeners.add(listener);
+      listeners.add(listener); //add render subscription;
       return () => listeners.delete(listener);
     },
 
