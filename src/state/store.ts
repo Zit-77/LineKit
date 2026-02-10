@@ -166,9 +166,9 @@ function saveElements(elements: CanvasElement[]) {
       }
 
       // Warning if approaching limit
-      if (projectedSize > WARNING_STORAGE_SIZE && now - lastWarningTime > 30000) {
+      if (projectedSize > WARNING_STORAGE_SIZE && Date.now() - lastWarningTime > 30000) {
         console.warn(`Storage usage: ${(projectedSize / 1024 / 1024).toFixed(2)}MB / ${MAX_STORAGE_SIZE / 1024 / 1024}MB`);
-        lastWarningTime = now;
+        lastWarningTime = Date.now();
       }
 
       localStorage.setItem(STORAGE_KEY, data);
