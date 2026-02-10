@@ -14,14 +14,40 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </svg>
     </button>
     <div id='menu-dropdown' class='hidden'>
-      <div class='menu-coming-soon'>
-        <span class='menu-coming-soon-icon'>🚀</span>
-        <span class='menu-coming-soon-text'>Menu options coming soon!</span>
-        <span class='menu-coming-soon-subtitle'>More features will be available here</span>
+      <button id='theme-menu-trigger' class='menu-item menu-item-expandable'>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.25M15.54 15.54l4.24 4.25M1 12h6M17 12h6M4.22 19.78l4.24-4.25M15.54 8.46l4.24-4.25"></path>
+        </svg>
+        <span>Theme</span>
+        <svg class='menu-chevron' width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+      <div id='theme-submenu' class='submenu hidden'>
+        <button class='menu-item theme-option' data-theme='dark'>
+          Midnight
+        </button>
+        <button class='menu-item theme-option' data-theme='light'>
+          Daylight
+        </button>
+        <button class='menu-item theme-option' data-theme='blue'>
+          Ocean Deep
+        </button>
+        <button class='menu-item theme-option' data-theme='purple'>
+          Cosmic Purple
+        </button>
       </div>
     </div>
   </div>
   <div id='toolbar'>
+    <button id='reset-canvas' class='tool-btn' title='Reset Canvas'>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="1 4 1 10 7 10"></polyline>
+        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+      </svg>
+    </button>
+    <div class='toolbar-separator'></div>
     <button id='tool-select' class='tool-btn active' title='Selecionar'>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path>

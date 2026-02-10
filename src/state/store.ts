@@ -106,6 +106,26 @@ interface State {
 }
 
 const STORAGE_KEY = 'g-draw-elements';
+const MAX_STORAGE_SIZE = 4 * 1024 * 1024; // 4MB limit (localStorage typically has 5-10MB)
+const WARNING_STORAGE_SIZE = 3 * 1024 * 1024; // 3MB warning threshold
+
+function getStorageSize(): number {
+  let total = 0;
+  for (const key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      const value = localStorage.getItem(key);
+      if (value) {
+        // Each character in UTF-16 takes 2 bytes
+        total += (key.length + value.length) * 2;
+      }
+    }
+  }
+  return total;
+}
+
+function getItemSize(data: string): number {
+  return (STORAGE_KEY.length + data.length) * 2;
+}
 
 function loadElements(): CanvasElement[] {
   try {
@@ -121,14 +141,44 @@ function loadElements(): CanvasElement[] {
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let lastWarningTime = 0;
 
 function saveElements(elements: CanvasElement[]) {
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(elements));
-    } catch {
-      // storage full or unavailable
+      const data = JSON.stringify(elements);
+      const itemSize = getItemSize(data);
+      const currentSize = getStorageSize();
+      const projectedSize = currentSize + itemSize;
+
+      // Check if we're exceeding the limit
+      if (projectedSize > MAX_STORAGE_SIZE) {
+        console.error('Storage limit exceeded. Cannot save elements.');
+
+        // Show warning to user (max once per 10 seconds)
+        const now = Date.now();
+        if (now - lastWarningTime > 10000) {
+          alert('Storage limit exceeded! Your drawing has too much data. Consider removing some elements or exporting your work.');
+          lastWarningTime = now;
+        }
+        return;
+      }
+
+      // Warning if approaching limit
+      if (projectedSize > WARNING_STORAGE_SIZE && now - lastWarningTime > 30000) {
+        console.warn(`Storage usage: ${(projectedSize / 1024 / 1024).toFixed(2)}MB / ${MAX_STORAGE_SIZE / 1024 / 1024}MB`);
+        lastWarningTime = now;
+      }
+
+      localStorage.setItem(STORAGE_KEY, data);
+    } catch (e) {
+      console.error('Failed to save to localStorage:', e);
+
+      // If quota exceeded, try to warn user
+      if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+        alert('Storage quota exceeded! Your drawing is too large to save. Please remove some elements.');
+      }
     }
   }, 300);
 }
