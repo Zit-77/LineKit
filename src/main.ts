@@ -38,17 +38,16 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           Cosmic Purple
         </button>
       </div>
-      <div class='menu-separator'></div>
-      <button id='reset-canvas' class='menu-item menu-item-danger'>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="1 4 1 10 7 10"></polyline>
-          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-        </svg>
-        Reset Canvas
-      </button>
     </div>
   </div>
   <div id='toolbar'>
+    <button id='reset-canvas' class='tool-btn' title='Reset Canvas'>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="1 4 1 10 7 10"></polyline>
+        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+      </svg>
+    </button>
+    <div class='toolbar-separator'></div>
     <button id='tool-select' class='tool-btn active' title='Selecionar'>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path>

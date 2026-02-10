@@ -42,7 +42,6 @@ export function setupMenu() {
   const themeMenuTrigger = $<HTMLButtonElement>('#theme-menu-trigger')!;
   const themeSubmenu = $<HTMLDivElement>('#theme-submenu')!;
   const themeOptions = document.querySelectorAll<HTMLButtonElement>('.theme-option');
-  const resetCanvasBtn = $<HTMLButtonElement>('#reset-canvas')!;
 
   menuBtn.addEventListener('click', (e) => {
     console.log("click menu options");
@@ -129,42 +128,6 @@ export function setupMenu() {
       themeMenuTrigger.classList.remove('expanded');
       menuDropdown.classList.add('hidden');
     });
-  });
-
-  // Reset canvas handler
-  resetCanvasBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-
-    const confirmed = confirm(
-      'Are you sure you want to reset the canvas?\n\nThis will:\n• Delete all elements\n• Clear localStorage\n• This action cannot be undone!'
-    );
-
-    if (confirmed) {
-      const state = store.getState();
-
-      // Clear elements array
-      state.elements = [];
-
-      // Clear selection
-      state.selectedElements.clear();
-      state.selectionRotation = 0;
-
-      // Clear localStorage
-      localStorage.removeItem('g-draw-elements');
-
-      // Clear history
-      state.past = [];
-      state.future = [];
-
-      // Notify changes
-      store.notify();
-      store.notifySelectionChange();
-
-      // Close menu
-      menuDropdown.classList.add('hidden');
-
-      console.log('Canvas reset complete');
-    }
   });
 
   return {

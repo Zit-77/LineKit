@@ -366,6 +366,14 @@ button:active {
   height: 2.5rem;
 }
 
+.toolbar-separator {
+  width: 1px;
+  height: 2rem;
+  background-color: hsl(var(--border));
+  margin: 0 4px;
+  align-self: center;
+}
+
 .tool-btn.active {
   background-color: hsl(var(--accent));
   color: hsl(var(--accent-foreground));
