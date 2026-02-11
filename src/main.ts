@@ -48,13 +48,13 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </svg>
     </button>
     <div class='toolbar-separator'></div>
-    <button id='tool-select' class='tool-btn active' title='Selecionar'>
+    <button id='tool-select' class='tool-btn active' title='Select'>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path>
         <path d="M13 13l6 6"></path>
       </svg>
     </button>
-    <button id='tool-move' class='tool-btn' title='Mover'>
+    <button id='tool-move' class='tool-btn' title='Move'>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
         <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path>
@@ -62,14 +62,14 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path>
       </svg>
     </button>
-    <button id='tool-draw' class='tool-btn' title='Desenhar'>
+    <button id='tool-draw' class='tool-btn' title='Draw'>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M18.37 2.63L14 7l-1.59-1.59a2 2 0 00-2.82 0L8 7l9 9 1.59-1.59a2 2 0 000-2.82L17 10l4.37-4.37a2.12 2.12 0 10-3-3z"></path>
         <path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"></path>
         <path d="M14.5 17.5L4.5 15"></path>
       </svg>
     </button>
-    <button id='tool-text' class='tool-btn' title='Texto'>
+    <button id='tool-text' class='tool-btn' title='Text'>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="4 7 4 4 20 4 20 7"></polyline>
         <line x1="9" y1="20" x2="15" y2="20"></line>
@@ -80,13 +80,13 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="3" width="18" height="18" rx="2"></rect>
       </svg>
-    <button id='tool-arrow' class='tool-btn' title='Seta'>
+    <button id='tool-arrow' class='tool-btn' title='Arrow'>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="5" y1="12" x2="19" y2="12"></line>
         <polyline points="12 5 19 12 12 19"></polyline>
       </svg>
     </button>
-    <button id='tool-line' class='tool-btn' title='Seta'>
+    <button id='tool-line' class='tool-btn' title='Line'>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
@@ -95,43 +95,43 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div id='shape-panel' class='hidden'>
     <span class='panel-label'>Shapes</span>
     <div class='shape-grid'>
-      <button class='shape-item active' data-shape='rectangle' title='Retângulo'>
+      <button class='shape-item active' data-shape='rectangle' title='Rectangle'>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="5" width="18" height="14"></rect>
         </svg>
       </button>
-      <button class='shape-item' data-shape='square' title='Quadrado'>
+      <button class='shape-item' data-shape='square' title='Square'>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="4" y="4" width="16" height="16"></rect>
         </svg>
       </button>
-      <button class='shape-item' data-shape='circle' title='Círculo'>
+      <button class='shape-item' data-shape='circle' title='Circle'>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="9"></circle>
         </svg>
       </button>
-      <button class='shape-item' data-shape='ellipse' title='Elipse'>
+      <button class='shape-item' data-shape='ellipse' title='Ellipse'>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <ellipse cx="12" cy="12" rx="10" ry="6"></ellipse>
         </svg>
       </button>
-      <button class='shape-item' data-shape='triangle' title='Triângulo'>
+      <button class='shape-item' data-shape='triangle' title='Triangle'>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 3L22 21H2L12 3z"></path>
         </svg>
       </button>
-      <button class='shape-item' data-shape='diamond' title='Losango'>
+      <button class='shape-item' data-shape='diamond' title='Diamond'>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 2L22 12L12 22L2 12L12 2z"></path>
         </svg>
       </button>
-      <button class='shape-item' data-shape='cylinder' title='Cilindro'>
+      <button class='shape-item' data-shape='cylinder' title='Cylinder'>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <ellipse cx="12" cy="5" rx="8" ry="3"></ellipse>
           <path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"></path>
         </svg>
       </button>
-      <button class='shape-item' data-shape='pyramid' title='Pirâmide'>
+      <button class='shape-item' data-shape='pyramid' title='Pyramid'>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 2L2 22h20L12 2z"></path>
           <path d="M12 2L12 22"></path>
@@ -141,14 +141,14 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     </div>
   </div>
   <div id='foot'>
-    <button id='undo-btn' class='disabled' disabled title='Desfazer (Ctrl+Z)'>
+    <button id='undo-btn' class='disabled' disabled title='Undo (Ctrl+Z)'>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M3 10h10a5 5 0 0 1 5 5v2"></path>
         <polyline points="3 10 7 6"></polyline>
         <polyline points="3 10 7 14"></polyline>
       </svg>
     </button>
-    <button id='redo-btn' class='disabled' disabled title='Refazer (Ctrl+Y)'>
+    <button id='redo-btn' class='disabled' disabled title='Redo (Ctrl+Y)'>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 10H11a5 5 0 0 0-5 5v2"></path>
         <polyline points="21 10 17 6"></polyline>
@@ -156,12 +156,12 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </svg>
     </button>
     <span class='foot-separator'></span>
-    <button id='zoom-out' title='Diminuir zoom'>
+    <button id='zoom-out' title='Zoom out'>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
     </button>
-    <button id='zoom-in' title='Aumentar zoom'>
+    <button id='zoom-in' title='Zoom in'>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="12" y1="5" x2="12" y2="19"></line>
         <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -221,7 +221,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <button class='color-btn' data-color='#3b82f6' style='background-color: #3b82f6'></button>
         <button class='color-btn' data-color='#8b5cf6' style='background-color: #8b5cf6'></button>
         <button class='color-btn' data-color='#ec4899' style='background-color: #ec4899'></button>
-        <input type='color' class='color-picker text-color-picker' value='#ffffff' title='Escolher cor'>
+        <input type='color' class='color-picker text-color-picker' value='#ffffff' title='Pick color'>
       </div>
       <span class='panel-label'>Opacity</span>
       <div class='opacity-slider-container'>
@@ -253,7 +253,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <button class='stroke-color-btn' data-color='#3b82f6' style='background-color: #3b82f6'></button>
         <button class='stroke-color-btn' data-color='#8b5cf6' style='background-color: #8b5cf6'></button>
         <button class='stroke-color-btn' data-color='#ec4899' style='background-color: #ec4899'></button>
-        <input type='color' class='color-picker stroke-color-picker' value='#ffffff' title='Escolher cor'>
+        <input type='color' class='color-picker stroke-color-picker' value='#ffffff' title='Pick color'>
       </div>
       <span class='panel-label'>Opacity</span>
       <div class='opacity-slider-container'>
@@ -276,17 +276,17 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </div>
       <span class='panel-label'>Line style</span>
       <div class='panel-buttons'>
-        <button class='line-style-btn active' data-style='solid' title='Sólido'>
+        <button class='line-style-btn active' data-style='solid' title='Solid'>
           <svg width="24" height="24" viewBox="0 0 24 24">
             <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2"></line>
           </svg>
         </button>
-        <button class='line-style-btn' data-style='dashed' title='Tracejado'>
+        <button class='line-style-btn' data-style='dashed' title='Dashed'>
           <svg width="24" height="24" viewBox="0 0 24 24">
             <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2"></line>
           </svg>
         </button>
-        <button class='line-style-btn' data-style='dotted' title='Pontilhado'>
+        <button class='line-style-btn' data-style='dotted' title='Dotted'>
           <svg width="24" height="24" viewBox="0 0 24 24">
             <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-dasharray="1 2"></line>
           </svg>
@@ -308,7 +308,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <button class='line-color-btn' data-color='#3b82f6' style='background-color: #3b82f6'></button>
         <button class='line-color-btn' data-color='#8b5cf6' style='background-color: #8b5cf6'></button>
         <button class='line-color-btn' data-color='#ec4899' style='background-color: #ec4899'></button>
-        <input type='color' class='color-picker line-color-picker' value='#ffffff' title='Escolher cor'>
+        <input type='color' class='color-picker line-color-picker' value='#ffffff' title='Pick color'>
       </div>
       <span class='panel-label'>Opacity</span>
       <div class='opacity-slider-container'>
@@ -331,19 +331,19 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </div>
       <span class='panel-label'>Arrow style</span>
       <div class='panel-buttons'>
-        <button class='arrow-style-btn active' data-style='solid' title='Sólido'>
+        <button class='arrow-style-btn active' data-style='solid' title='Solid'>
           <svg width="24" height="24" viewBox="0 0 24 24">
             <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2"></line>
             <polyline points="15 7 20 12 15 17" fill="none" stroke="currentColor" stroke-width="2"></polyline>
           </svg>
         </button>
-        <button class='arrow-style-btn' data-style='dashed' title='Tracejado'>
+        <button class='arrow-style-btn' data-style='dashed' title='Dashed'>
           <svg width="24" height="24" viewBox="0 0 24 24">
             <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2"></line>
             <polyline points="15 7 20 12 15 17" fill="none" stroke="currentColor" stroke-width="2"></polyline>
           </svg>
         </button>
-        <button class='arrow-style-btn' data-style='dotted' title='Pontilhado'>
+        <button class='arrow-style-btn' data-style='dotted' title='Dotted'>
           <svg width="24" height="24" viewBox="0 0 24 24">
             <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-dasharray="1 2"></line>
             <polyline points="15 7 20 12 15 17" fill="none" stroke="currentColor" stroke-width="2"></polyline>
@@ -366,7 +366,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <button class='arrow-color-btn' data-color='#3b82f6' style='background-color: #3b82f6'></button>
         <button class='arrow-color-btn' data-color='#8b5cf6' style='background-color: #8b5cf6'></button>
         <button class='arrow-color-btn' data-color='#ec4899' style='background-color: #ec4899'></button>
-        <input type='color' class='color-picker arrow-color-picker' value='#ffffff' title='Escolher cor'>
+        <input type='color' class='color-picker arrow-color-picker' value='#ffffff' title='Pick color'>
       </div>
       <span class='panel-label'>Opacity</span>
       <div class='opacity-slider-container'>
@@ -377,7 +377,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <div id='shape-options' class='panel-section hidden'>
       <span class='panel-label'>Fill color (Shape)</span>
       <div class='panel-buttons color-palette'>
-        <button class='shape-fill-btn active' data-color='transparent' title='Sem preenchimento' style='background: linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%), linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%); background-size: 8px 8px; background-position: 0 0, 4px 4px; background-color: #333;'></button>
+        <button class='shape-fill-btn active' data-color='transparent' title='No fill' style='background: linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%), linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%); background-size: 8px 8px; background-position: 0 0, 4px 4px; background-color: #333;'></button>
         <button class='shape-fill-btn' data-color='#ffffff' style='background-color: #ffffff'></button>
         <button class='shape-fill-btn' data-color='#000000' style='background-color: #000000'></button>
         <button class='shape-fill-btn' data-color='#ef4444' style='background-color: #ef4444'></button>
@@ -387,7 +387,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <button class='shape-fill-btn' data-color='#3b82f6' style='background-color: #3b82f6'></button>
         <button class='shape-fill-btn' data-color='#8b5cf6' style='background-color: #8b5cf6'></button>
         <button class='shape-fill-btn' data-color='#ec4899' style='background-color: #ec4899'></button>
-        <input type='color' class='color-picker shape-fill-picker' value='#3b82f6' title='Escolher cor'>
+        <input type='color' class='color-picker shape-fill-picker' value='#3b82f6' title='Pick color'>
       </div>
       <span class='panel-label'>Fill opacity (Shape)</span>
       <div class='opacity-slider-container'>
@@ -396,7 +396,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </div>
       <span class='panel-label'>Stroke color (Shape)</span>
       <div class='panel-buttons color-palette'>
-        <button class='shape-stroke-btn' data-color='transparent' title='Sem borda' style='background: linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%), linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%); background-size: 8px 8px; background-position: 0 0, 4px 4px; background-color: #333;'></button>
+        <button class='shape-stroke-btn' data-color='transparent' title='No border' style='background: linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%), linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%); background-size: 8px 8px; background-position: 0 0, 4px 4px; background-color: #333;'></button>
         <button class='shape-stroke-btn active' data-color='#ffffff' style='background-color: #ffffff'></button>
         <button class='shape-stroke-btn' data-color='#000000' style='background-color: #000000'></button>
         <button class='shape-stroke-btn' data-color='#ef4444' style='background-color: #ef4444'></button>
@@ -406,7 +406,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <button class='shape-stroke-btn' data-color='#3b82f6' style='background-color: #3b82f6'></button>
         <button class='shape-stroke-btn' data-color='#8b5cf6' style='background-color: #8b5cf6'></button>
         <button class='shape-stroke-btn' data-color='#ec4899' style='background-color: #ec4899'></button>
-        <input type='color' class='color-picker shape-stroke-picker' value='#ffffff' title='Escolher cor'>
+        <input type='color' class='color-picker shape-stroke-picker' value='#ffffff' title='Pick color'>
       </div>
       <span class='panel-label'>Stroke opacity (Shape)</span>
       <div class='opacity-slider-container'>
@@ -427,17 +427,17 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </div>
       <span class='panel-label'>Border radius</span>
       <div class='panel-buttons'>
-        <button class='shape-radius-btn active' data-radius='0' title='Sem arredondamento'>
+        <button class='shape-radius-btn active' data-radius='0' title='Sharp corners'>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="4" y="4" width="16" height="16"></rect>
           </svg>
         </button>
-        <button class='shape-radius-btn' data-radius='8' title='Pouco arredondado'>
+        <button class='shape-radius-btn' data-radius='8' title='Slightly rounded'>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="4" y="4" width="16" height="16" rx="4"></rect>
           </svg>
         </button>
-        <button class='shape-radius-btn' data-radius='16' title='Arredondado'>
+        <button class='shape-radius-btn' data-radius='16' title='Rounded'>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="4" y="4" width="16" height="16" rx="8"></rect>
           </svg>
