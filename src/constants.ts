@@ -21,6 +21,10 @@ export const DEFAULT_SHAPE_STROKE_COLOR = '#ffffff';
 export const DEFAULT_SHAPE_STROKE_OPACITY = 1;
 export const DEFAULT_SHAPE_STROKE_WIDTH = 2;
 export const DEFAULT_SHAPE_BORDER_RADIUS = 0;
+export const DEFAULT_LINE_STYLE = 'solid';
+export const DEFAULT_LINE_ROUGHNESS = 0;
+export const DEFAULT_ARROW_STYLE = 'solid';
+export const DEFAULT_ARROW_ROUGHNESS = 0;
 
 // Hit testing
 export const HIT_TEST_PADDING = 4;

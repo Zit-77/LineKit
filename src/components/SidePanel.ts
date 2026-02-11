@@ -7,6 +7,8 @@ export function setupSidePanel(canvas: Canvas) {
   const sidePanel = $<HTMLDivElement>('#side-panel')!;
   const textOptions = $<HTMLDivElement>('#text-options')!;
   const strokeOptions = $<HTMLDivElement>('#stroke-options')!;
+  const lineOptions = $<HTMLDivElement>('#line-options')!;
+  const arrowOptions = $<HTMLDivElement>('#arrow-options')!;
   const shapeOptions = $<HTMLDivElement>('#shape-options')!;
 
   let currentTool: Tool = 'select';
@@ -21,25 +23,24 @@ export function setupSidePanel(canvas: Canvas) {
 
   function updatePanel() {
     const showTextOptions = currentTool === 'text' || currentSelection.hasText;
-    const showStrokeOptions =
-      currentTool === 'draw' ||
-      currentTool === 'arrow' ||
-      currentTool === 'line' ||
-      currentSelection.hasPath ||
-      currentSelection.hasArrow ||
-      currentSelection.hasLine;
-
+    const showStrokeOptions = currentTool === 'draw' || currentSelection.hasPath;
+    const showLineOptions = currentTool === 'line' || currentSelection.hasLine;
+    const showArrowOptions = currentTool === 'arrow' || currentSelection.hasArrow;
     const showShapeOptions = currentTool === 'shape' || currentSelection.hasShape;
 
-    if (showTextOptions || showStrokeOptions || showShapeOptions) {
+    if (showTextOptions || showStrokeOptions || showLineOptions || showArrowOptions || showShapeOptions) {
       show(sidePanel);
       showTextOptions ? show(textOptions) : hide(textOptions);
       showStrokeOptions ? show(strokeOptions) : hide(strokeOptions);
+      showLineOptions ? show(lineOptions) : hide(lineOptions);
+      showArrowOptions ? show(arrowOptions) : hide(arrowOptions);
       showShapeOptions ? show(shapeOptions) : hide(shapeOptions);
     } else {
       hide(sidePanel);
       hide(textOptions);
       hide(strokeOptions);
+      hide(lineOptions);
+      hide(arrowOptions);
       hide(shapeOptions);
     }
   }
@@ -179,6 +180,142 @@ export function setupSidePanel(canvas: Canvas) {
       const value = parseInt(strokeOpacitySlider.value);
       strokeOpacityValue.textContent = `${value}%`;
       actions.setStrokeOpacity(value / 100);
+    });
+  }
+
+  // Line width buttons
+  const lineWidthButtons = $all<HTMLButtonElement>('.line-width-btn');
+  lineWidthButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      lineWidthButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const width = parseInt(btn.dataset.width || '4');
+      actions.setLineWidth(width);
+    });
+  });
+
+  // Line style buttons
+  const lineStyleButtons = $all<HTMLButtonElement>('.line-style-btn');
+  lineStyleButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      lineStyleButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const style = btn.dataset.style || 'solid';
+      actions.setLineStyle(style as 'solid' | 'dashed' | 'dotted');
+    });
+  });
+
+  // Line roughness slider
+  const lineRoughnessSlider = $<HTMLInputElement>('.line-roughness-slider');
+  const lineRoughnessValue = $<HTMLSpanElement>('.line-roughness-value');
+
+  if (lineRoughnessSlider && lineRoughnessValue) {
+    lineRoughnessSlider.addEventListener('input', () => {
+      const value = parseInt(lineRoughnessSlider.value);
+      lineRoughnessValue.textContent = `${value}%`;
+      actions.setLineRoughness(value / 100);
+    });
+  }
+
+  // Line color buttons
+  const lineColorButtons = $all<HTMLButtonElement>('.line-color-btn');
+  const lineColorPicker = $<HTMLInputElement>('.line-color-picker');
+
+  lineColorButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      lineColorButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const color = btn.dataset.color || '#ffffff';
+      actions.setLineColor(color);
+      if (lineColorPicker) lineColorPicker.value = color;
+    });
+  });
+
+  // Line color picker
+  if (lineColorPicker) {
+    lineColorPicker.addEventListener('input', () => {
+      lineColorButtons.forEach((b) => b.classList.remove('active'));
+      actions.setLineColor(lineColorPicker.value);
+    });
+  }
+
+  // Line opacity slider
+  const lineOpacitySlider = $<HTMLInputElement>('.line-opacity-slider');
+  const lineOpacityValue = $<HTMLSpanElement>('.line-opacity-value');
+
+  if (lineOpacitySlider && lineOpacityValue) {
+    lineOpacitySlider.addEventListener('input', () => {
+      const value = parseInt(lineOpacitySlider.value);
+      lineOpacityValue.textContent = `${value}%`;
+      actions.setLineOpacity(value / 100);
+    });
+  }
+
+  // Arrow width buttons
+  const arrowWidthButtons = $all<HTMLButtonElement>('.arrow-width-btn');
+  arrowWidthButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      arrowWidthButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const width = parseInt(btn.dataset.width || '4');
+      actions.setArrowWidth(width);
+    });
+  });
+
+  // Arrow style buttons
+  const arrowStyleButtons = $all<HTMLButtonElement>('.arrow-style-btn');
+  arrowStyleButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      arrowStyleButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const style = btn.dataset.style || 'solid';
+      actions.setArrowStyle(style as 'solid' | 'dashed' | 'dotted');
+    });
+  });
+
+  // Arrow roughness slider
+  const arrowRoughnessSlider = $<HTMLInputElement>('.arrow-roughness-slider');
+  const arrowRoughnessValue = $<HTMLSpanElement>('.arrow-roughness-value');
+
+  if (arrowRoughnessSlider && arrowRoughnessValue) {
+    arrowRoughnessSlider.addEventListener('input', () => {
+      const value = parseInt(arrowRoughnessSlider.value);
+      arrowRoughnessValue.textContent = `${value}%`;
+      actions.setArrowRoughness(value / 100);
+    });
+  }
+
+  // Arrow color buttons
+  const arrowColorButtons = $all<HTMLButtonElement>('.arrow-color-btn');
+  const arrowColorPicker = $<HTMLInputElement>('.arrow-color-picker');
+
+  arrowColorButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      arrowColorButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const color = btn.dataset.color || '#ffffff';
+      actions.setArrowColor(color);
+      if (arrowColorPicker) arrowColorPicker.value = color;
+    });
+  });
+
+  // Arrow color picker
+  if (arrowColorPicker) {
+    arrowColorPicker.addEventListener('input', () => {
+      arrowColorButtons.forEach((b) => b.classList.remove('active'));
+      actions.setArrowColor(arrowColorPicker.value);
+    });
+  }
+
+  // Arrow opacity slider
+  const arrowOpacitySlider = $<HTMLInputElement>('.arrow-opacity-slider');
+  const arrowOpacityValue = $<HTMLSpanElement>('.arrow-opacity-value');
+
+  if (arrowOpacitySlider && arrowOpacityValue) {
+    arrowOpacitySlider.addEventListener('input', () => {
+      const value = parseInt(arrowOpacitySlider.value);
+      arrowOpacityValue.textContent = `${value}%`;
+      actions.setArrowOpacity(value / 100);
     });
   }
 

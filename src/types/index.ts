@@ -45,6 +45,8 @@ export interface Shape {
   rotation: number;
 }
 
+export type LineStyle = 'solid' | 'dashed' | 'dotted';
+
 export interface Line {
   startX: number;
   startY: number;
@@ -53,6 +55,8 @@ export interface Line {
   color: string;
   opacity: number;
   lineWidth: number;
+  style?: LineStyle;
+  roughness?: number;
   controlX?: number;
   controlY?: number;
 }
@@ -65,6 +69,8 @@ export interface Arrow {
   color: string;
   opacity: number;
   lineWidth: number;
+  style?: LineStyle;
+  roughness?: number;
   controlX?: number;
   controlY?: number;
 }

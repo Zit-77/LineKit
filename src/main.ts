@@ -261,8 +261,121 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <span class='opacity-value stroke-opacity-value'>100%</span>
       </div>
     </div>
+    <div id='line-options' class='panel-section hidden'>
+      <span class='panel-label'>Line width</span>
+      <div class='panel-buttons'>
+        <button class='line-width-btn' data-width='2'>
+          <span class='stroke-preview' style='height: 2px'></span>
+        </button>
+        <button class='line-width-btn active' data-width='4'>
+          <span class='stroke-preview' style='height: 4px'></span>
+        </button>
+        <button class='line-width-btn' data-width='8'>
+          <span class='stroke-preview' style='height: 8px'></span>
+        </button>
+      </div>
+      <span class='panel-label'>Line style</span>
+      <div class='panel-buttons'>
+        <button class='line-style-btn active' data-style='solid' title='Sólido'>
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2"></line>
+          </svg>
+        </button>
+        <button class='line-style-btn' data-style='dashed' title='Tracejado'>
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2"></line>
+          </svg>
+        </button>
+        <button class='line-style-btn' data-style='dotted' title='Pontilhado'>
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-dasharray="1 2"></line>
+          </svg>
+        </button>
+      </div>
+      <span class='panel-label'>Roughness</span>
+      <div class='opacity-slider-container'>
+        <input type='range' class='line-roughness-slider' min='0' max='100' value='0'>
+        <span class='opacity-value line-roughness-value'>0%</span>
+      </div>
+      <span class='panel-label'>Color</span>
+      <div class='panel-buttons color-palette'>
+        <button class='line-color-btn active' data-color='#ffffff' style='background-color: #ffffff'></button>
+        <button class='line-color-btn' data-color='#000000' style='background-color: #000000'></button>
+        <button class='line-color-btn' data-color='#ef4444' style='background-color: #ef4444'></button>
+        <button class='line-color-btn' data-color='#f97316' style='background-color: #f97316'></button>
+        <button class='line-color-btn' data-color='#eab308' style='background-color: #eab308'></button>
+        <button class='line-color-btn' data-color='#22c55e' style='background-color: #22c55e'></button>
+        <button class='line-color-btn' data-color='#3b82f6' style='background-color: #3b82f6'></button>
+        <button class='line-color-btn' data-color='#8b5cf6' style='background-color: #8b5cf6'></button>
+        <button class='line-color-btn' data-color='#ec4899' style='background-color: #ec4899'></button>
+        <input type='color' class='color-picker line-color-picker' value='#ffffff' title='Escolher cor'>
+      </div>
+      <span class='panel-label'>Opacity</span>
+      <div class='opacity-slider-container'>
+        <input type='range' class='opacity-slider line-opacity-slider' min='0' max='100' value='100'>
+        <span class='opacity-value line-opacity-value'>100%</span>
+      </div>
+    </div>
+    <div id='arrow-options' class='panel-section hidden'>
+      <span class='panel-label'>Arrow width</span>
+      <div class='panel-buttons'>
+        <button class='arrow-width-btn' data-width='2'>
+          <span class='stroke-preview' style='height: 2px'></span>
+        </button>
+        <button class='arrow-width-btn active' data-width='4'>
+          <span class='stroke-preview' style='height: 4px'></span>
+        </button>
+        <button class='arrow-width-btn' data-width='8'>
+          <span class='stroke-preview' style='height: 8px'></span>
+        </button>
+      </div>
+      <span class='panel-label'>Arrow style</span>
+      <div class='panel-buttons'>
+        <button class='arrow-style-btn active' data-style='solid' title='Sólido'>
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2"></line>
+            <polyline points="15 7 20 12 15 17" fill="none" stroke="currentColor" stroke-width="2"></polyline>
+          </svg>
+        </button>
+        <button class='arrow-style-btn' data-style='dashed' title='Tracejado'>
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2"></line>
+            <polyline points="15 7 20 12 15 17" fill="none" stroke="currentColor" stroke-width="2"></polyline>
+          </svg>
+        </button>
+        <button class='arrow-style-btn' data-style='dotted' title='Pontilhado'>
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-dasharray="1 2"></line>
+            <polyline points="15 7 20 12 15 17" fill="none" stroke="currentColor" stroke-width="2"></polyline>
+          </svg>
+        </button>
+      </div>
+      <span class='panel-label'>Roughness</span>
+      <div class='opacity-slider-container'>
+        <input type='range' class='arrow-roughness-slider' min='0' max='100' value='0'>
+        <span class='opacity-value arrow-roughness-value'>0%</span>
+      </div>
+      <span class='panel-label'>Color</span>
+      <div class='panel-buttons color-palette'>
+        <button class='arrow-color-btn active' data-color='#ffffff' style='background-color: #ffffff'></button>
+        <button class='arrow-color-btn' data-color='#000000' style='background-color: #000000'></button>
+        <button class='arrow-color-btn' data-color='#ef4444' style='background-color: #ef4444'></button>
+        <button class='arrow-color-btn' data-color='#f97316' style='background-color: #f97316'></button>
+        <button class='arrow-color-btn' data-color='#eab308' style='background-color: #eab308'></button>
+        <button class='arrow-color-btn' data-color='#22c55e' style='background-color: #22c55e'></button>
+        <button class='arrow-color-btn' data-color='#3b82f6' style='background-color: #3b82f6'></button>
+        <button class='arrow-color-btn' data-color='#8b5cf6' style='background-color: #8b5cf6'></button>
+        <button class='arrow-color-btn' data-color='#ec4899' style='background-color: #ec4899'></button>
+        <input type='color' class='color-picker arrow-color-picker' value='#ffffff' title='Escolher cor'>
+      </div>
+      <span class='panel-label'>Opacity</span>
+      <div class='opacity-slider-container'>
+        <input type='range' class='opacity-slider arrow-opacity-slider' min='0' max='100' value='100'>
+        <span class='opacity-value arrow-opacity-value'>100%</span>
+      </div>
+    </div>
     <div id='shape-options' class='panel-section hidden'>
-      <span class='panel-label'>Fill color</span>
+      <span class='panel-label'>Fill color (Shape)</span>
       <div class='panel-buttons color-palette'>
         <button class='shape-fill-btn active' data-color='transparent' title='Sem preenchimento' style='background: linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%), linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%); background-size: 8px 8px; background-position: 0 0, 4px 4px; background-color: #333;'></button>
         <button class='shape-fill-btn' data-color='#ffffff' style='background-color: #ffffff'></button>
@@ -276,12 +389,12 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <button class='shape-fill-btn' data-color='#ec4899' style='background-color: #ec4899'></button>
         <input type='color' class='color-picker shape-fill-picker' value='#3b82f6' title='Escolher cor'>
       </div>
-      <span class='panel-label'>Fill opacity</span>
+      <span class='panel-label'>Fill opacity (Shape)</span>
       <div class='opacity-slider-container'>
         <input type='range' class='opacity-slider shape-fill-opacity-slider' min='0' max='100' value='100'>
         <span class='opacity-value shape-fill-opacity-value'>100%</span>
       </div>
-      <span class='panel-label'>Stroke color</span>
+      <span class='panel-label'>Stroke color (Shape)</span>
       <div class='panel-buttons color-palette'>
         <button class='shape-stroke-btn' data-color='transparent' title='Sem borda' style='background: linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%), linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #666 75%); background-size: 8px 8px; background-position: 0 0, 4px 4px; background-color: #333;'></button>
         <button class='shape-stroke-btn active' data-color='#ffffff' style='background-color: #ffffff'></button>
@@ -295,12 +408,12 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <button class='shape-stroke-btn' data-color='#ec4899' style='background-color: #ec4899'></button>
         <input type='color' class='color-picker shape-stroke-picker' value='#ffffff' title='Escolher cor'>
       </div>
-      <span class='panel-label'>Stroke opacity</span>
+      <span class='panel-label'>Stroke opacity (Shape)</span>
       <div class='opacity-slider-container'>
         <input type='range' class='opacity-slider shape-stroke-opacity-slider' min='0' max='100' value='100'>
         <span class='opacity-value shape-stroke-opacity-value'>100%</span>
       </div>
-      <span class='panel-label'>Stroke width</span>
+      <span class='panel-label'>Stroke width (Shape)</span>
       <div class='panel-buttons'>
         <button class='shape-width-btn' data-width='0'>
           <span style='font-size: 10px'>0</span>

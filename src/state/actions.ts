@@ -3,6 +3,7 @@ import type {
   Tool,
   ShapeType,
   FontStyle,
+  LineStyle,
   CanvasElement,
   Point,
   BoundingBox,
@@ -244,6 +245,106 @@ export function setStrokeOpacity(opacity: number) {
       el.data.opacity = opacity;
     } else if (el.type === 'line') {
       el.data.opacity = opacity;
+    }
+  }
+  store.notify();
+}
+
+export function setLineWidth(width: number) {
+  state.strokeWidth = width;
+  for (const el of state.selectedElements) {
+    if (el.type === 'line') {
+      el.data.lineWidth = width;
+    }
+  }
+  store.notify();
+}
+
+export function setLineColor(color: string) {
+  state.strokeColor = color;
+  for (const el of state.selectedElements) {
+    if (el.type === 'line') {
+      el.data.color = color;
+    }
+  }
+  store.notify();
+}
+
+export function setLineOpacity(opacity: number) {
+  state.strokeOpacity = opacity;
+  for (const el of state.selectedElements) {
+    if (el.type === 'line') {
+      el.data.opacity = opacity;
+    }
+  }
+  store.notify();
+}
+
+export function setLineStyle(style: LineStyle) {
+  state.lineStyle = style;
+  for (const el of state.selectedElements) {
+    if (el.type === 'line') {
+      el.data.style = style;
+    }
+  }
+  store.notify();
+}
+
+export function setLineRoughness(roughness: number) {
+  state.lineRoughness = roughness;
+  for (const el of state.selectedElements) {
+    if (el.type === 'line') {
+      el.data.roughness = roughness;
+    }
+  }
+  store.notify();
+}
+
+export function setArrowWidth(width: number) {
+  state.strokeWidth = width;
+  for (const el of state.selectedElements) {
+    if (el.type === 'arrow') {
+      el.data.lineWidth = width;
+    }
+  }
+  store.notify();
+}
+
+export function setArrowColor(color: string) {
+  state.strokeColor = color;
+  for (const el of state.selectedElements) {
+    if (el.type === 'arrow') {
+      el.data.color = color;
+    }
+  }
+  store.notify();
+}
+
+export function setArrowOpacity(opacity: number) {
+  state.strokeOpacity = opacity;
+  for (const el of state.selectedElements) {
+    if (el.type === 'arrow') {
+      el.data.opacity = opacity;
+    }
+  }
+  store.notify();
+}
+
+export function setArrowStyle(style: LineStyle) {
+  state.arrowStyle = style;
+  for (const el of state.selectedElements) {
+    if (el.type === 'arrow') {
+      el.data.style = style;
+    }
+  }
+  store.notify();
+}
+
+export function setArrowRoughness(roughness: number) {
+  state.arrowRoughness = roughness;
+  for (const el of state.selectedElements) {
+    if (el.type === 'arrow') {
+      el.data.roughness = roughness;
     }
   }
   store.notify();

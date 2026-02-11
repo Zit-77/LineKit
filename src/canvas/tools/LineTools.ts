@@ -5,7 +5,7 @@ import * as actions from '../../state/actions';
 import { registerRenderer } from '../elementRenderers';
 
 function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
-  const { startX, startY, endX, endY, color, opacity, lineWidth, controlX, controlY } = line;
+  const { startX, startY, endX, endY, color, opacity, lineWidth, controlX, controlY, style, roughness } = line;
 
   ctx.save();
   ctx.globalAlpha = opacity ?? 1;
@@ -15,14 +15,54 @@ function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  ctx.beginPath();
-  ctx.moveTo(startX, startY);
-  if (controlX !== undefined && controlY !== undefined) {
-    ctx.quadraticCurveTo(controlX, controlY, endX, endY);
+  // Apply line style
+  if (style === 'dashed') {
+    ctx.setLineDash([lineWidth * 4, lineWidth * 2]);
+  } else if (style === 'dotted') {
+    ctx.setLineDash([lineWidth, lineWidth * 2]);
   } else {
-    ctx.lineTo(endX, endY);
+    ctx.setLineDash([]);
   }
-  ctx.stroke();
+
+  // Apply roughness effect
+  if (roughness && roughness > 0) {
+    const steps = 50;
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const roughnessAmount = roughness * lineWidth * 2;
+
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps;
+      const offsetX = (Math.random() - 0.5) * roughnessAmount;
+      const offsetY = (Math.random() - 0.5) * roughnessAmount;
+
+      if (controlX !== undefined && controlY !== undefined) {
+        // Quadratic curve with roughness
+        const x = (1 - t) * (1 - t) * startX + 2 * (1 - t) * t * controlX + t * t * endX + offsetX;
+        const y = (1 - t) * (1 - t) * startY + 2 * (1 - t) * t * controlY + t * t * endY + offsetY;
+        ctx.lineTo(x, y);
+      } else {
+        // Straight line with roughness
+        const x = startX + dx * t + offsetX;
+        const y = startY + dy * t + offsetY;
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
+  } else {
+    // Normal rendering without roughness
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    if (controlX !== undefined && controlY !== undefined) {
+      ctx.quadraticCurveTo(controlX, controlY, endX, endY);
+    } else {
+      ctx.lineTo(endX, endY);
+    }
+    ctx.stroke();
+  }
 
   ctx.restore();
 }
@@ -50,6 +90,8 @@ export const LineTool: BaseTool = {
             color: state.strokeColor,
             opacity: state.strokeOpacity,
             lineWidth: state.strokeWidth,
+            style: state.lineStyle,
+            roughness: state.lineRoughness,
         });
     },
 

@@ -2,6 +2,7 @@ import type {
   Tool,
   ShapeType,
   FontStyle,
+  LineStyle,
   CanvasElement,
   Point,
   BoundingBox,
@@ -27,6 +28,10 @@ import {
   DEFAULT_SHAPE_STROKE_OPACITY,
   DEFAULT_SHAPE_STROKE_WIDTH,
   DEFAULT_SHAPE_BORDER_RADIUS,
+  DEFAULT_LINE_STYLE,
+  DEFAULT_LINE_ROUGHNESS,
+  DEFAULT_ARROW_STYLE,
+  DEFAULT_ARROW_ROUGHNESS,
 } from '../constants';
 
 type Listener = () => void;
@@ -64,6 +69,10 @@ interface State {
   strokeWidth: number;
   strokeColor: string;
   strokeOpacity: number;
+  lineStyle: LineStyle;
+  lineRoughness: number;
+  arrowStyle: LineStyle;
+  arrowRoughness: number;
   shapeType: ShapeType;
   shapeFillColor: string;
   shapeFillOpacity: number;
@@ -212,6 +221,10 @@ function createStore() {
     strokeWidth: DEFAULT_STROKE_WIDTH,
     strokeColor: DEFAULT_STROKE_COLOR,
     strokeOpacity: DEFAULT_STROKE_OPACITY,
+    lineStyle: DEFAULT_LINE_STYLE as LineStyle,
+    lineRoughness: DEFAULT_LINE_ROUGHNESS,
+    arrowStyle: DEFAULT_ARROW_STYLE as LineStyle,
+    arrowRoughness: DEFAULT_ARROW_ROUGHNESS,
     shapeType: 'rectangle',
     shapeFillColor: DEFAULT_SHAPE_FILL_COLOR,
     shapeFillOpacity: DEFAULT_SHAPE_FILL_OPACITY,
