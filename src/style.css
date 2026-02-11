@@ -90,6 +90,7 @@ body {
   width: 100%;
   height: 100%;
   background-color: hsl(var(--canvas-bg));
+  touch-action: none;
 }
 
 #header {
@@ -933,4 +934,158 @@ button:active {
   background-size: 8px 8px;
   background-position: 0 0, 4px 4px;
   background-color: #333;
+}
+
+/* Mobile Overlay */
+#mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 49;
+  display: none;
+}
+
+#mobile-overlay.active {
+  display: block;
+}
+
+/* ========== MOBILE RESPONSIVE ========== */
+@media (max-width: 768px) {
+  /* Toolbar → bottom bar */
+  #toolbar {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    width: 100%;
+    justify-content: center;
+    padding: 6px 8px;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+    border-radius: 0;
+    border: none;
+    border-top: 1px solid hsl(var(--border));
+    box-shadow: 0 -2px 10px rgb(0 0 0 / 0.15);
+    z-index: 50;
+    gap: 2px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tool-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    min-width: 2.5rem;
+  }
+
+  .toolbar-separator {
+    width: 1px;
+    height: 1.5rem;
+    margin: 0 2px;
+  }
+
+  /* Header stays top-left, smaller */
+  #header {
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+
+  /* Footer → above toolbar */
+  #foot {
+    bottom: calc(3.5rem + env(safe-area-inset-bottom));
+    left: 0.5rem;
+    gap: 2px;
+    padding: 4px;
+  }
+
+  #foot button {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  #zoom-level {
+    font-size: 0.7rem;
+    min-width: 36px;
+    padding: 0 2px;
+    height: 1.75rem;
+  }
+
+  /* Side panel → bottom sheet
+     On mobile we override .hidden to use offscreen transform instead of display:none
+     so animations work. */
+  #side-panel {
+    display: flex !important;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: calc(3.5rem + env(safe-area-inset-bottom));
+    transform: translateY(calc(100% + 4rem));
+    width: 100%;
+    max-height: 50vh;
+    border-radius: var(--radius) var(--radius) 0 0;
+    border: none;
+    border-top: 1px solid hsl(var(--border));
+    box-shadow: 0 -4px 20px rgb(0 0 0 / 0.2);
+    z-index: 50;
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    overflow-y: auto;
+    padding-bottom: 1rem;
+    pointer-events: none;
+  }
+
+  #side-panel.mobile-open {
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* Shape panel — hidden on mobile */
+  #shape-panel {
+    display: none !important;
+  }
+
+  /* Element info panel — hidden on mobile */
+  #element-info-panel {
+    display: none !important;
+  }
+
+  /* Mobile expand toggle — a small bar to tap to show/hide side panel */
+  .mobile-panel-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(3.5rem + env(safe-area-inset-bottom));
+    width: 48px;
+    height: 20px;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-bottom: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+    z-index: 51;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .mobile-panel-toggle.hidden {
+    display: none;
+  }
+
+  .mobile-panel-toggle .toggle-indicator {
+    width: 24px;
+    height: 3px;
+    border-radius: 2px;
+    background-color: hsl(var(--muted-foreground));
+  }
 }

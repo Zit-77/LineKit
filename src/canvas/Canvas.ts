@@ -177,6 +177,82 @@ export function createCanvas(element: HTMLCanvasElement) {
     tool.onKeyDown?.(e, context);
   }
 
+  // ====== Touch support ======
+  let lastTouchDistance = 0;
+  let isTouchPinching = false;
+
+  function touchToMouse(touch: Touch): MouseEvent {
+    return new MouseEvent('mouseevent', {
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+      button: 0,
+      buttons: 1,
+    });
+  }
+
+  function handleTouchStart(e: TouchEvent) {
+    e.preventDefault();
+
+    if (e.touches.length === 2) {
+      // Pinch-to-zoom start
+      isTouchPinching = true;
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      lastTouchDistance = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      return;
+    }
+
+    if (e.touches.length === 1) {
+      isTouchPinching = false;
+      const fakeEvent = touchToMouse(e.touches[0]);
+      handleMouseDown(fakeEvent);
+    }
+  }
+
+  function handleTouchMove(e: TouchEvent) {
+    e.preventDefault();
+
+    if (e.touches.length === 2 && isTouchPinching) {
+      // Pinch-to-zoom
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      const newDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      const centerX = (t1.clientX + t2.clientX) / 2;
+      const centerY = (t1.clientY + t2.clientY) / 2;
+
+      if (newDist > lastTouchDistance + 5) {
+        actions.zoomIn(centerX, centerY);
+        lastTouchDistance = newDist;
+      } else if (newDist < lastTouchDistance - 5) {
+        actions.zoomOut(centerX, centerY);
+        lastTouchDistance = newDist;
+      }
+
+      return;
+    }
+
+    if (e.touches.length === 1 && !isTouchPinching) {
+      const fakeEvent = touchToMouse(e.touches[0]);
+      handleMouseMove(fakeEvent);
+    }
+  }
+
+  function handleTouchEnd(e: TouchEvent) {
+    e.preventDefault();
+
+    if (isTouchPinching) {
+      if (e.touches.length < 2) {
+        isTouchPinching = false;
+      }
+      return;
+    }
+
+    if (e.changedTouches.length >= 1) {
+      const fakeEvent = touchToMouse(e.changedTouches[0]);
+      handleMouseUp(fakeEvent);
+    }
+  }
+
   function handleWheel(e: WheelEvent) {
     e.preventDefault();
 
@@ -224,13 +300,20 @@ export function createCanvas(element: HTMLCanvasElement) {
     }
   }
 
-  // Event listeners
+  // Event listeners — mouse
   element.addEventListener('mousedown', handleMouseDown);
   element.addEventListener('mousemove', handleMouseMove);
   element.addEventListener('mouseup', handleMouseUp);
   element.addEventListener('mouseleave', handleMouseUp);
   element.addEventListener('dblclick', handleDoubleClick);
   element.addEventListener('wheel', handleWheel, { passive: false });
+
+  // Event listeners — touch
+  element.addEventListener('touchstart', handleTouchStart, { passive: false });
+  element.addEventListener('touchmove', handleTouchMove, { passive: false });
+  element.addEventListener('touchend', handleTouchEnd, { passive: false });
+  element.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('resize', resize);
 

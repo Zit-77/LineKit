@@ -5,3 +5,4 @@ export { setupSidePanel } from './SidePanel';
 export { setupZoomControls } from './ZoomControls';
 export { setupHistoryControls } from './HistoryControls';
 export { setupElementInfoPanel } from './ElementInfoPanel';
+export { setupMobileDrawers } from './MobileDrawers';

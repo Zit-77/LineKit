@@ -1,10 +1,11 @@
 import { createCanvas } from './canvas';
-import { setupMenu, setupToolbar, setupShapePanel, setupSidePanel, setupZoomControls, setupHistoryControls, setupElementInfoPanel } from './components';
+import { setupMenu, setupToolbar, setupShapePanel, setupSidePanel, setupZoomControls, setupHistoryControls, setupElementInfoPanel, setupMobileDrawers } from './components';
 import './style.css';
 
 // Create HTML structure
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <canvas id='canvas'></canvas>
+  <div id='mobile-overlay'></div>
   <div id='header'>
     <button id='menu-btn'>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -38,6 +39,16 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           Cosmic Purple
         </button>
       </div>
+      <button id='export-pdf-btn' class='menu-item'>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        <span>Export as PDF</span>
+      </button>
     </div>
   </div>
   <div id='toolbar'>
@@ -168,6 +179,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
     </button>
+  </div>
+  <div id='mobile-panel-toggle' class='mobile-panel-toggle hidden'>
+    <span class='toggle-indicator'></span>
   </div>
   <div id='side-panel' class='hidden'>
     <div id='text-options' class='panel-section hidden'>
@@ -510,3 +524,4 @@ setupSidePanel(canvas);
 setupZoomControls(canvas);
 setupHistoryControls(canvas);
 setupElementInfoPanel(canvas);
+setupMobileDrawers(canvas);
