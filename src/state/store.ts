@@ -115,6 +115,7 @@ interface State {
 }
 
 const STORAGE_KEY = 'g-draw-elements';
+const ZOOM_STORAGE_KEY = 'g-draw-zoom';
 const MAX_STORAGE_SIZE = 4 * 1024 * 1024; // 4MB limit (localStorage typically has 5-10MB)
 const WARNING_STORAGE_SIZE = 3 * 1024 * 1024; // 3MB warning threshold
 
@@ -147,6 +148,27 @@ function loadElements(): CanvasElement[] {
     // ignore corrupt data
   }
   return [];
+}
+
+function loadZoom(): number {
+  try {
+    const raw = localStorage.getItem(ZOOM_STORAGE_KEY);
+    if (raw) {
+      const zoom = parseFloat(raw);
+      if (!isNaN(zoom) && zoom > 0) return zoom;
+    }
+  } catch {
+    // ignore corrupt data
+  }
+  return 1; // default zoom
+}
+
+function saveZoom(zoom: number) {
+  try {
+    localStorage.setItem(ZOOM_STORAGE_KEY, zoom.toString());
+  } catch (e) {
+    console.error('Failed to save zoom to localStorage:', e);
+  }
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -210,7 +232,7 @@ function createStore() {
 
     // View transform
     offset: { x: 0, y: 0 },
-    scale: 1,
+    scale: loadZoom(),
 
     // Tool settings
     textSize: DEFAULT_TEXT_SIZE,
@@ -408,6 +430,7 @@ function createStore() {
     notifySelectionChange,
     notifyToolChange,
     saveSnapshot,
+    saveZoom,
     undo,
     redo,
   };

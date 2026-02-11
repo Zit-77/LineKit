@@ -177,6 +177,24 @@ export function createCanvas(element: HTMLCanvasElement) {
     tool.onKeyDown?.(e, context);
   }
 
+  function handleWheel(e: WheelEvent) {
+    e.preventDefault();
+
+    // Get mouse position in canvas coordinates
+    const rect = element.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Zoom in or out based on scroll direction
+    if (e.deltaY < 0) {
+      // Scroll up = Zoom in
+      actions.zoomIn(mouseX, mouseY);
+    } else {
+      // Scroll down = Zoom out
+      actions.zoomOut(mouseX, mouseY);
+    }
+  }
+
   function setTool(tool: Tool) {
     actions.setTool(tool);
     const newTool = tools[tool];
@@ -212,6 +230,7 @@ export function createCanvas(element: HTMLCanvasElement) {
   element.addEventListener('mouseup', handleMouseUp);
   element.addEventListener('mouseleave', handleMouseUp);
   element.addEventListener('dblclick', handleDoubleClick);
+  element.addEventListener('wheel', handleWheel, { passive: false });
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('resize', resize);
 

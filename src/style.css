@@ -119,6 +119,19 @@ body {
   z-index: 10;
 }
 
+#zoom-level {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  min-width: 48px;
+  height: 2rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  user-select: none;
+}
+
 .foot-separator {
   width: 1px;
   height: 20px;

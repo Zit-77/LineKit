@@ -111,6 +111,7 @@ export function setOffset(offset: Point) {
 
 export function setScale(scale: number) {
   state.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
+  store.saveZoom(state.scale);
   store.notify();
 }
 
@@ -119,6 +120,7 @@ export function zoomIn(centerX: number, centerY: number) {
   state.offset.x = centerX - (centerX - state.offset.x) * (newScale / state.scale);
   state.offset.y = centerY - (centerY - state.offset.y) * (newScale / state.scale);
   state.scale = newScale;
+  store.saveZoom(state.scale);
   store.notify();
 }
 
@@ -127,12 +129,14 @@ export function zoomOut(centerX: number, centerY: number) {
   state.offset.x = centerX - (centerX - state.offset.x) * (newScale / state.scale);
   state.offset.y = centerY - (centerY - state.offset.y) * (newScale / state.scale);
   state.scale = newScale;
+  store.saveZoom(state.scale);
   store.notify();
 }
 
 export function resetZoom() {
   state.scale = 1;
   state.offset = { x: 0, y: 0 };
+  store.saveZoom(state.scale);
   store.notify();
 }
 
