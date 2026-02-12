@@ -5,8 +5,9 @@ function isMobile(): boolean {
 }
 
 export function makeDraggable(panel: HTMLElement): void {
-  const handle = panel.querySelector<HTMLElement>('.panel-drag-handle');
-  if (!handle) return;
+  const handleEl = panel.querySelector<HTMLElement>('.panel-drag-handle');
+  if (!handleEl) return;
+  const handle = handleEl;
 
   const storageKey = `panel-pos-${panel.id}`;
   let isDragging = false;
