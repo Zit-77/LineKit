@@ -133,6 +133,82 @@ body {
   user-select: none;
 }
 
+/* Selection actions (more options button + dropdown) */
+#selection-actions {
+  position: fixed;
+  z-index: 50;
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
+#selection-actions.hidden {
+  display: none;
+}
+
+#selection-more-btn {
+  width: 2rem;
+  height: 2rem;
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+#selection-more-btn:hover {
+  background-color: hsl(var(--accent));
+}
+
+.selection-dropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 140px;
+  padding: 4px;
+  background-color: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  animation: fadeIn 0.12s ease;
+}
+
+.selection-dropdown.hidden {
+  display: none;
+}
+
+.selection-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: auto;
+  padding: 8px 10px;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  text-align: left;
+  justify-content: flex-start;
+  color: hsl(var(--popover-foreground));
+  border-radius: calc(var(--radius) - 2px);
+  white-space: nowrap;
+}
+
+.selection-action:hover {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.selection-action svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.selection-action:hover svg {
+  opacity: 1;
+}
+
 .foot-separator {
   width: 1px;
   height: 20px;
@@ -428,6 +504,45 @@ button:active {
 
 #side-panel::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.5);
+}
+
+#side-panel.dragged,
+#element-info-panel.dragged {
+  transform: none;
+}
+
+/* Panel drag handle */
+.panel-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 18px;
+  margin: -8px 0 4px 0;
+  cursor: grab;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+  touch-action: none;
+}
+
+.panel-drag-handle:hover {
+  background-color: hsl(var(--muted));
+}
+
+.panel-drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-dots {
+  display: block;
+  width: 24px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: hsl(var(--muted-foreground) / 0.4);
+}
+
+.panel-drag-handle:hover .drag-dots {
+  background-color: hsl(var(--muted-foreground) / 0.7);
 }
 
 #side-panel.hidden {
@@ -1019,17 +1134,23 @@ button:active {
     height: 1.75rem;
   }
 
+  /* Hide drag handles on mobile */
+  .panel-drag-handle {
+    display: none;
+  }
+
   /* Side panel → bottom sheet
      On mobile we override .hidden to use offscreen transform instead of display:none
      so animations work. */
-  #side-panel {
+  #side-panel,
+  #side-panel.dragged {
     display: flex !important;
     position: fixed;
-    left: 0;
-    right: 0;
-    top: auto;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
     bottom: calc(3.5rem + env(safe-area-inset-bottom));
-    transform: translateY(calc(100% + 4rem));
+    transform: translateY(calc(100% + 4rem)) !important;
     width: 100%;
     max-height: 50vh;
     border-radius: var(--radius) var(--radius) 0 0;
@@ -1043,8 +1164,9 @@ button:active {
     pointer-events: none;
   }
 
-  #side-panel.mobile-open {
-    transform: translateY(0);
+  #side-panel.mobile-open,
+  #side-panel.dragged.mobile-open {
+    transform: translateY(0) !important;
     pointer-events: auto;
   }
 

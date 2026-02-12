@@ -1,6 +1,7 @@
 import type { Tool, SelectionInfo, FontStyle } from '../types';
 import type { Canvas } from '../canvas';
 import { $, $all, show, hide } from '../utils/dom';
+import { makeDraggable } from '../utils/draggable';
 import * as actions from '../state/actions';
 
 export function setupSidePanel(canvas: Canvas) {
@@ -10,6 +11,8 @@ export function setupSidePanel(canvas: Canvas) {
   const lineOptions = $<HTMLDivElement>('#line-options')!;
   const arrowOptions = $<HTMLDivElement>('#arrow-options')!;
   const shapeOptions = $<HTMLDivElement>('#shape-options')!;
+
+  makeDraggable(sidePanel);
 
   let currentTool: Tool = 'select';
   let currentSelection: SelectionInfo = {

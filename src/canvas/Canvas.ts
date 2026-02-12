@@ -327,12 +327,66 @@ export function createCanvas(element: HTMLCanvasElement) {
     render();
   });
 
+  // Export selected elements as image
+  function exportSelection() {
+    if (state.selectedElements.size === 0) return;
+
+    const PADDING = 16;
+    const selectedArray = Array.from(state.selectedElements);
+
+    // Calculate combined bounding box
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    for (const el of selectedArray) {
+      const box = getBoundingBox(el, ctx);
+      if (!box) continue;
+      if (box.x < minX) minX = box.x;
+      if (box.y < minY) minY = box.y;
+      if (box.x + box.width > maxX) maxX = box.x + box.width;
+      if (box.y + box.height > maxY) maxY = box.y + box.height;
+    }
+
+    if (minX === Infinity) return;
+
+    const exportWidth = (maxX - minX) + PADDING * 2;
+    const exportHeight = (maxY - minY) + PADDING * 2;
+
+    // Create offscreen canvas
+    const offscreen = document.createElement('canvas');
+    offscreen.width = exportWidth;
+    offscreen.height = exportHeight;
+    const offCtx = offscreen.getContext('2d')!;
+
+    // Translate so elements are drawn at the correct position
+    offCtx.translate(-minX + PADDING, -minY + PADDING);
+
+    // Render only selected elements
+    for (const el of selectedArray) {
+      renderElement(offCtx, el);
+    }
+
+    // Download as PNG
+    offscreen.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `export-${Date.now()}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  }
+
   // Initialize
   resize();
   setTool('select');
 
   return {
     setTool,
+    exportSelection,
     zoomIn: () => actions.zoomIn(element.width / 2, element.height / 2),
     zoomOut: () => actions.zoomOut(element.width / 2, element.height / 2),
     resetZoom: actions.resetZoom,

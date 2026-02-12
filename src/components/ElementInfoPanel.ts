@@ -1,6 +1,7 @@
 import type { Canvas } from '../canvas';
 import type { CanvasElement, SelectionInfo, BoundingBox } from '../types';
 import { $, show, hide } from '../utils/dom';
+import { makeDraggable } from '../utils/draggable';
 import { store } from '../state/store';
 import { getBoundingBox } from '../utils/geometry';
 import { moveElement, scaleElement, rotateElement } from '../elements';
@@ -25,6 +26,8 @@ export function setupElementInfoPanel(canvas: Canvas) {
   const elementRotation = $<HTMLInputElement>('#element-rotation')!;
   const strokeSection = $<HTMLDivElement>('#element-stroke-section')!;
   const strokeWidthInput = $<HTMLInputElement>('#element-stroke-width')!;
+
+  makeDraggable(panel);
 
   let currentElement: CanvasElement | null = null;
   let selectedElements: CanvasElement[] = [];
