@@ -59,6 +59,12 @@ export interface Line {
   roughness?: number;
   controlX?: number;
   controlY?: number;
+  startConnectedTo?: string;
+  endConnectedTo?: string;
+  startAnchorX?: number;  // 0-1 posição relativa no bounding box
+  startAnchorY?: number;
+  endAnchorX?: number;
+  endAnchorY?: number;
 }
 
 export interface Arrow {
@@ -73,15 +79,21 @@ export interface Arrow {
   roughness?: number;
   controlX?: number;
   controlY?: number;
+  startConnectedTo?: string;
+  endConnectedTo?: string;
+  startAnchorX?: number;
+  startAnchorY?: number;
+  endAnchorX?: number;
+  endAnchorY?: number;
 }
 
 // Canvas element union type
 export type CanvasElement =
-  | { type: 'text'; data: TextBlock }
-  | { type: 'path'; data: DrawPath }
-  | { type: 'shape'; data: Shape }
-  | { type: 'arrow'; data: Arrow }
-  | { type: 'line'; data: Line };
+  | { type: 'text'; id: string; data: TextBlock }
+  | { type: 'path'; id: string; data: DrawPath }
+  | { type: 'shape'; id: string; data: Shape }
+  | { type: 'arrow'; id: string; data: Arrow }
+  | { type: 'line'; id: string; data: Line };
 
 // Geometry types
 export interface Point {

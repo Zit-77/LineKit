@@ -14,6 +14,7 @@ import type {
   Line,
   HandleType,
 } from '../types';
+import { generateId } from '../utils/id';
 import {
   DEFAULT_TEXT_SIZE,
   DEFAULT_TEXT_FONT_FAMILY,
@@ -101,6 +102,9 @@ interface State {
   isMarqueeSelecting: boolean;
   isCreatingLine: boolean;
 
+  // Snap indicator
+  snapTarget: Point | null;
+
   // Transform state
   activeHandle: HandleType;
   initialSelectionBox: BoundingBox | null;
@@ -142,7 +146,13 @@ function loadElements(): CanvasElement[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) {
+        // Assign IDs to elements that don't have one (backwards compat)
+        for (const el of parsed) {
+          if (!el.id) el.id = generateId();
+        }
+        return parsed;
+      }
     }
   } catch {
     // ignore corrupt data
@@ -274,6 +284,9 @@ function createStore() {
     isPanning: false,
     isMarqueeSelecting: false,
     isCreatingLine: false,
+
+    // Snap indicator
+    snapTarget: null,
 
     // Transform state
     activeHandle: null,

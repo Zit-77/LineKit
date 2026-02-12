@@ -11,6 +11,8 @@ import {
   boxesIntersect,
 } from '../../utils/geometry';
 import { moveElement, rotateElement, scaleElement } from '../../elements';
+import { updateConnectedArrows, findSnapTarget, getClosestBorderPoint, computeAnchor } from '../../utils/connections';
+import { generateId } from '../../utils/id';
 
 // Clipboard para copiar/colar elementos
 let clipboard: CanvasElement[] = [];
@@ -134,19 +136,57 @@ export const SelectTool: BaseTool = {
       const selectedArray = Array.from(state.selectedElements);
       if (selectedArray.length === 1 && (selectedArray[0].type === 'line' || selectedArray[0].type === 'arrow')) {
         const el = selectedArray[0];
-        const data = el.data as { startX: number; startY: number; endX: number; endY: number; controlX?: number; controlY?: number };
+        const data = el.data as { startX: number; startY: number; endX: number; endY: number; controlX?: number; controlY?: number; startConnectedTo?: string; endConnectedTo?: string };
 
         if (state.activeHandle === 'start') {
-          data.startX = point.x;
-          data.startY = point.y;
+          const excludeIds = new Set<string>([el.id]);
+          const snapTarget = findSnapTarget(point, state.elements, excludeIds, context.ctx);
+          if (snapTarget) {
+            const bp = getClosestBorderPoint(snapTarget, point, context.ctx);
+            if (bp) {
+              data.startX = bp.x;
+              data.startY = bp.y;
+              data.startConnectedTo = snapTarget.id;
+              const anchor = computeAnchor(snapTarget, bp, context.ctx);
+              if (anchor) {
+                data.startAnchorX = anchor.anchorX;
+                data.startAnchorY = anchor.anchorY;
+              }
+              actions.setSnapTarget(bp);
+            }
+          } else {
+            data.startX = point.x;
+            data.startY = point.y;
+            data.startConnectedTo = undefined;
+            data.startAnchorX = undefined;
+            data.startAnchorY = undefined;
+            actions.setSnapTarget(null);
+          }
         } else if (state.activeHandle === 'end') {
-          data.endX = point.x;
-          data.endY = point.y;
+          const excludeIds = new Set<string>([el.id]);
+          const snapTarget = findSnapTarget(point, state.elements, excludeIds, context.ctx);
+          if (snapTarget) {
+            const bp = getClosestBorderPoint(snapTarget, point, context.ctx);
+            if (bp) {
+              data.endX = bp.x;
+              data.endY = bp.y;
+              data.endConnectedTo = snapTarget.id;
+              const anchor = computeAnchor(snapTarget, bp, context.ctx);
+              if (anchor) {
+                data.endAnchorX = anchor.anchorX;
+                data.endAnchorY = anchor.anchorY;
+              }
+              actions.setSnapTarget(bp);
+            }
+          } else {
+            data.endX = point.x;
+            data.endY = point.y;
+            data.endConnectedTo = undefined;
+            data.endAnchorX = undefined;
+            data.endAnchorY = undefined;
+            actions.setSnapTarget(null);
+          }
         } else if (state.activeHandle === 'mid') {
-          // The user drags a point ON the curve (t=0.5).
-          // Convert to the actual bezier control point:
-          // curvePoint = 0.25*start + 0.5*control + 0.25*end
-          // control = 2*curvePoint - 0.5*start - 0.5*end
           data.controlX = 2 * point.x - 0.5 * data.startX - 0.5 * data.endX;
           data.controlY = 2 * point.y - 0.5 * data.startY - 0.5 * data.endY;
         }
@@ -233,6 +273,7 @@ export const SelectTool: BaseTool = {
 
       for (const el of state.selectedElements) {
         moveElement(el, dx, dy);
+        updateConnectedArrows(el, state.elements, context.ctx);
       }
 
       actions.setDragStart(point);
@@ -287,7 +328,7 @@ export const SelectTool: BaseTool = {
       if (state.activeHandle === 'rotate') {
         actions.setSelectionRotation(0);
       }
-      // Line handles don't need special cleanup
+      actions.setSnapTarget(null);
       actions.setActiveHandle(null);
       actions.setInitialSelectionBox(null);
       context.render();
@@ -392,6 +433,17 @@ export const SelectTool: BaseTool = {
 
         for (const el of clipboard) {
           const cloned = JSON.parse(JSON.stringify(el)) as CanvasElement;
+          cloned.id = generateId();
+
+          // Clear connections on pasted arrows/lines
+          if (cloned.type === 'arrow' || cloned.type === 'line') {
+            cloned.data.startConnectedTo = undefined;
+            cloned.data.endConnectedTo = undefined;
+            cloned.data.startAnchorX = undefined;
+            cloned.data.startAnchorY = undefined;
+            cloned.data.endAnchorX = undefined;
+            cloned.data.endAnchorY = undefined;
+          }
 
           // Ajustar posição baseado no tipo do elemento
           if (cloned.type === 'text') {

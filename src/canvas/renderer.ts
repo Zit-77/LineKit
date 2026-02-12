@@ -163,6 +163,29 @@ export function drawLineSelectionUI(
   ctx.restore();
 }
 
+export function drawSnapIndicator(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number
+) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, 10, 0, Math.PI * 2);
+  ctx.strokeStyle = SELECTION_COLOR;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([]);
+  ctx.globalAlpha = 0.8;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(x, y, 10, 0, Math.PI * 2);
+  ctx.fillStyle = SELECTION_COLOR;
+  ctx.globalAlpha = 0.15;
+  ctx.fill();
+
+  ctx.restore();
+}
+
 export function drawMarquee(
   ctx: CanvasRenderingContext2D,
   startX: number,

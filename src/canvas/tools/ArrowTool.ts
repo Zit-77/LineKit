@@ -3,6 +3,7 @@ import type { Point, Arrow } from '../../types';
 import { store } from '../../state/store';
 import * as actions from '../../state/actions';
 import { registerRenderer } from '../elementRenderers';
+import { findSnapTarget, getClosestBorderPoint, computeAnchor } from '../../utils/connections';
 
 function drawArrow(ctx: CanvasRenderingContext2D, arrow: Arrow) {
   const { startX, startY, endX, endY, color, opacity, lineWidth, controlX, controlY, style, roughness } = arrow;
@@ -106,20 +107,35 @@ export const ArrowTool: BaseTool = {
     context.canvas.style.cursor = 'crosshair';
   },
 
-  onMouseDown(_e: MouseEvent, point: Point, _context: ToolContext) {
+  onMouseDown(_e: MouseEvent, point: Point, context: ToolContext) {
     const state = store.getState();
+
+    let startX = point.x;
+    let startY = point.y;
+    let startConnectedTo: string | undefined;
+
+    const snapTarget = findSnapTarget(point, state.elements, new Set(), context.ctx);
+    if (snapTarget) {
+      const bp = getClosestBorderPoint(snapTarget, point, context.ctx);
+      if (bp) {
+        startX = bp.x;
+        startY = bp.y;
+        startConnectedTo = snapTarget.id;
+      }
+    }
 
     actions.setIsCreatingArrow(true);
     actions.setCurrentArrow({
-      startX: point.x,
-      startY: point.y,
-      endX: point.x,
-      endY: point.y,
+      startX,
+      startY,
+      endX: startX,
+      endY: startY,
       color: state.strokeColor,
       opacity: state.strokeOpacity,
       lineWidth: state.strokeWidth,
       style: state.arrowStyle,
       roughness: state.arrowRoughness,
+      startConnectedTo,
     });
   },
 
@@ -127,14 +143,76 @@ export const ArrowTool: BaseTool = {
     const state = store.getState();
 
     if (state.isCreatingArrow && state.currentArrow) {
+      const excludeIds = new Set<string>();
+      if (state.currentArrow.startConnectedTo) excludeIds.add(state.currentArrow.startConnectedTo);
+
+      // Recalcular start na borda: ponto mais perto do mouse atual
+      if (state.currentArrow.startConnectedTo) {
+        const startEl = state.elements.find(e => e.id === state.currentArrow!.startConnectedTo);
+        if (startEl) {
+          const startBp = getClosestBorderPoint(startEl, point, context.ctx);
+          if (startBp) {
+            state.currentArrow.startX = startBp.x;
+            state.currentArrow.startY = startBp.y;
+          }
+        }
+      }
+
+      const snapTarget = findSnapTarget(point, state.elements, excludeIds, context.ctx);
+      if (snapTarget) {
+        const bp = getClosestBorderPoint(snapTarget, point, context.ctx);
+        if (bp) {
+          state.currentArrow.endX = bp.x;
+          state.currentArrow.endY = bp.y;
+          actions.setSnapTarget(bp);
+          context.render();
+          return;
+        }
+      }
+
       state.currentArrow.endX = point.x;
       state.currentArrow.endY = point.y;
+      actions.setSnapTarget(null);
       context.render();
     }
   },
 
-  onMouseUp(_e: MouseEvent, _point: Point, context: ToolContext) {
+  onMouseUp(_e: MouseEvent, point: Point, context: ToolContext) {
     const state = store.getState();
+
+    if (state.currentArrow) {
+      const excludeIds = new Set<string>();
+      if (state.currentArrow.startConnectedTo) excludeIds.add(state.currentArrow.startConnectedTo);
+
+      const snapTarget = findSnapTarget(point, state.elements, excludeIds, context.ctx);
+      if (snapTarget) {
+        const bp = getClosestBorderPoint(snapTarget, point, context.ctx);
+        if (bp) {
+          state.currentArrow.endX = bp.x;
+          state.currentArrow.endY = bp.y;
+          state.currentArrow.endConnectedTo = snapTarget.id;
+          const anchor = computeAnchor(snapTarget, bp, context.ctx);
+          if (anchor) {
+            state.currentArrow.endAnchorX = anchor.anchorX;
+            state.currentArrow.endAnchorY = anchor.anchorY;
+          }
+        }
+      }
+
+      // Salvar anchor do start
+      if (state.currentArrow.startConnectedTo) {
+        const startEl = state.elements.find(e => e.id === state.currentArrow!.startConnectedTo);
+        if (startEl) {
+          const anchor = computeAnchor(startEl, { x: state.currentArrow.startX, y: state.currentArrow.startY }, context.ctx);
+          if (anchor) {
+            state.currentArrow.startAnchorX = anchor.anchorX;
+            state.currentArrow.startAnchorY = anchor.anchorY;
+          }
+        }
+      }
+    }
+
+    actions.setSnapTarget(null);
     const countBefore = state.elements.length;
     actions.commitCurrentArrow();
     if (state.elements.length > countBefore) {

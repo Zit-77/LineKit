@@ -15,6 +15,7 @@ import type {
   Line,
 } from '../types';
 import { MIN_SCALE, MAX_SCALE, ZOOM_FACTOR } from '../constants';
+import { generateId } from '../utils/id';
 
 const state = store.getState();
 
@@ -30,6 +31,7 @@ export function redo() {
 // Element actions
 export function addElement(element: CanvasElement) {
   store.saveSnapshot();
+  if (!element.id) element.id = generateId();
   state.elements.push(element);
   store.notify();
 }
@@ -46,12 +48,32 @@ export function removeElement(element: CanvasElement) {
 export function removeSelectedElements() {
   if (state.selectedElements.size === 0) return;
   store.saveSnapshot();
+
+  // Collect IDs of elements being removed
+  const removedIds = new Set<string>();
+  for (const el of state.selectedElements) {
+    removedIds.add(el.id);
+  }
+
   for (const el of state.selectedElements) {
     const index = state.elements.indexOf(el);
     if (index > -1) {
       state.elements.splice(index, 1);
     }
   }
+
+  // Clean up dangling connection references
+  for (const el of state.elements) {
+    if (el.type === 'arrow' || el.type === 'line') {
+      if (el.data.startConnectedTo && removedIds.has(el.data.startConnectedTo)) {
+        el.data.startConnectedTo = undefined;
+      }
+      if (el.data.endConnectedTo && removedIds.has(el.data.endConnectedTo)) {
+        el.data.endConnectedTo = undefined;
+      }
+    }
+  }
+
   state.selectedElements.clear();
   store.notifySelectionChange();
   store.notify();
@@ -92,7 +114,7 @@ export function setSelectionRotation(rotation: number) {
 export function setTool(tool: Tool) {
   // Commit any active text block before switching
   if (state.activeTextBlock && state.activeTextBlock.text.trim()) {
-    state.elements.push({ type: 'text', data: state.activeTextBlock });
+    state.elements.push({ type: 'text', id: generateId(), data: state.activeTextBlock });
   }
   state.activeTextBlock = null;
   state.selectedElements.clear();
@@ -527,11 +549,15 @@ export function setInitialRotation(rotation: number) {
   state.initialRotation = rotation;
 }
 
+export function setSnapTarget(point: Point | null) {
+  state.snapTarget = point;
+}
+
 // Commit active text block to elements
 export function commitActiveTextBlock() {
   if (state.activeTextBlock && state.activeTextBlock.text.trim()) {
     store.saveSnapshot();
-    state.elements.push({ type: 'text', data: state.activeTextBlock });
+    state.elements.push({ type: 'text', id: generateId(), data: state.activeTextBlock });
   }
   state.activeTextBlock = null;
   store.notify();
@@ -549,7 +575,7 @@ export function commitCurrentPath() {
     }
     state.currentPath.centerX = sumX / state.currentPath.points.length;
     state.currentPath.centerY = sumY / state.currentPath.points.length;
-    state.elements.push({ type: 'path', data: state.currentPath });
+    state.elements.push({ type: 'path', id: generateId(), data: state.currentPath });
   }
   state.currentPath = null;
   state.isDrawing = false;
@@ -560,7 +586,7 @@ export function commitCurrentPath() {
 export function commitCurrentShape() {
   if (state.currentShape && state.currentShape.width > 5 && state.currentShape.height > 5) {
     store.saveSnapshot();
-    state.elements.push({ type: 'shape', data: state.currentShape });
+    state.elements.push({ type: 'shape', id: generateId(), data: state.currentShape });
   }
   state.currentShape = null;
   state.isCreatingShape = false;
@@ -574,7 +600,7 @@ export function commitCurrentLine() {
     const length = Math.sqrt(dx * dx + dy * dy);
     if (length > 10) {
       store.saveSnapshot();
-      state.elements.push({ type: 'line', data: state.currentLine });
+      state.elements.push({ type: 'line', id: generateId(), data: state.currentLine });
     }
   }
   state.currentLine = null;
@@ -590,7 +616,7 @@ export function commitCurrentArrow() {
     const length = Math.sqrt(dx * dx + dy * dy);
     if (length > 10) {
       store.saveSnapshot();
-      state.elements.push({ type: 'arrow', data: state.currentArrow });
+      state.elements.push({ type: 'arrow', id: generateId(), data: state.currentArrow });
     }
   }
   state.currentArrow = null;

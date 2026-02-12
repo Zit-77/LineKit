@@ -32,6 +32,9 @@ export const HANDLE_HIT_SIZE = HANDLE_SIZE + 4;
 export const MIN_SHAPE_SIZE = 5;
 export const MIN_ARROW_LENGTH = 10;
 
+// Connector snapping
+export const SNAP_RADIUS = 30;
+
 // Colors
 export const SELECTION_COLOR = '#3b82f6';
 export const MARQUEE_FILL_COLOR = 'rgba(59, 130, 246, 0.1)';
