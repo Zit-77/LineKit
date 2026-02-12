@@ -38,16 +38,16 @@ export function createCanvas(element: HTMLCanvasElement) {
 
     // Draw in-progress elements
     if (state.currentPath) {
-      renderElement(ctx, { type: 'path', data: state.currentPath });
+      renderElement(ctx, { type: 'path', id: '', data: state.currentPath });
     }
     if (state.currentShape) {
-      renderElement(ctx, { type: 'shape', data: state.currentShape });
+      renderElement(ctx, { type: 'shape', id: '', data: state.currentShape });
     }
     if (state.currentArrow) {
-      renderElement(ctx, { type: 'arrow', data: state.currentArrow });
+      renderElement(ctx, { type: 'arrow', id: '', data: state.currentArrow });
     }
     if (state.currentLine) {
-      renderElement(ctx, { type: 'line', data: state.currentLine });
+      renderElement(ctx, { type: 'line', id: '', data: state.currentLine });
     }
 
     // Draw active text block (with cursor and selection)

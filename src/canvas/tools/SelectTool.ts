@@ -136,7 +136,7 @@ export const SelectTool: BaseTool = {
       const selectedArray = Array.from(state.selectedElements);
       if (selectedArray.length === 1 && (selectedArray[0].type === 'line' || selectedArray[0].type === 'arrow')) {
         const el = selectedArray[0];
-        const data = el.data as { startX: number; startY: number; endX: number; endY: number; controlX?: number; controlY?: number; startConnectedTo?: string; endConnectedTo?: string };
+        const data = el.data as { startX: number; startY: number; endX: number; endY: number; controlX?: number; controlY?: number; startConnectedTo?: string; endConnectedTo?: string; startAnchorX?: number; startAnchorY?: number; endAnchorX?: number; endAnchorY?: number };
 
         if (state.activeHandle === 'start') {
           const excludeIds = new Set<string>([el.id]);

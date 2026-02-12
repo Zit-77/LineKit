@@ -252,7 +252,7 @@ export const TextTool: BaseTool = {
 
       // Click outside — commit current text and create new
       if (block.text.trim()) {
-        actions.addElement({ type: 'text', data: block });
+        actions.addElement({ type: 'text', id: '', data: block });
       }
     }
 
