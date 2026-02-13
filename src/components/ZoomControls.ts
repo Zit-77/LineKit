@@ -2,6 +2,7 @@ import type { Canvas } from '../canvas';
 import { $ } from '../utils/dom';
 import { store } from '../state/store';
 import { getSelectionBoundingBox } from '../utils/geometry';
+import { isArrowConnected, disconnectArrow } from '../utils/connections';
 
 export function setupZoomControls(canvas: Canvas) {
   const zoomInBtn = $<HTMLButtonElement>('#zoom-in')!;
@@ -11,6 +12,7 @@ export function setupZoomControls(canvas: Canvas) {
   const moreBtn = $<HTMLButtonElement>('#selection-more-btn')!;
   const dropdown = $<HTMLDivElement>('#selection-dropdown')!;
   const exportPngBtn = $<HTMLButtonElement>('#action-export-png')!;
+  const unlockArrowBtn = $<HTMLButtonElement>('#action-unlock-arrow')!;
   const canvasEl = $<HTMLCanvasElement>('#canvas')!;
   const ctx = canvasEl.getContext('2d')!;
 
@@ -74,10 +76,34 @@ export function setupZoomControls(canvas: Canvas) {
     dropdown.classList.add('hidden');
   });
 
+  // Unlock/disconnect arrow action
+  unlockArrowBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const state = store.getState();
+    for (const el of state.selectedElements) {
+      disconnectArrow(el);
+    }
+    unlockArrowBtn.classList.add('hidden');
+    store.notify();
+  });
+
+  function updateUnlockButtonVisibility() {
+    const state = store.getState();
+    const selected = Array.from(state.selectedElements);
+    const onlyArrows = selected.length > 0 && selected.every(el => el.type === 'arrow');
+    const hasConnected = onlyArrows && selected.some(el => isArrowConnected(el));
+    if (hasConnected) {
+      unlockArrowBtn.classList.remove('hidden');
+    } else {
+      unlockArrowBtn.classList.add('hidden');
+    }
+  }
+
   // Show/hide actions based on selection
   canvas.onSelectionChange((info) => {
     if (info.count > 0) {
       updateSelectionActionsPosition();
+      updateUnlockButtonVisibility();
     } else {
       selectionActions.classList.add('hidden');
       dropdown.classList.add('hidden');
@@ -89,6 +115,9 @@ export function setupZoomControls(canvas: Canvas) {
     const state = store.getState();
     if (state.selectedElements.size > 0) {
       updateSelectionActionsPosition();
+      updateUnlockButtonVisibility();
+    } else {
+      unlockArrowBtn.classList.add('hidden');
     }
     updateZoomDisplay();
   });

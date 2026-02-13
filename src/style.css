@@ -145,6 +145,10 @@ body {
   display: none;
 }
 
+#action-unlock-arrow.hidden {
+  display: none;
+}
+
 #selection-more-btn {
   width: 2rem;
   height: 2rem;

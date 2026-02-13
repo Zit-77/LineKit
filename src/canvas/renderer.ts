@@ -1,5 +1,6 @@
-import type { BoundingBox } from '../types';
+import type { BoundingBox, CanvasElement } from '../types';
 import { HANDLE_SIZE, ROTATE_HANDLE_OFFSET, SELECTION_COLOR, MARQUEE_FILL_COLOR } from '../constants';
+import { getBoundingBox } from '../utils/geometry';
 
 export function drawElementBoundingBox(
   ctx: CanvasRenderingContext2D,
@@ -181,6 +182,51 @@ export function drawSnapIndicator(
   ctx.arc(x, y, 10, 0, Math.PI * 2);
   ctx.fillStyle = SELECTION_COLOR;
   ctx.globalAlpha = 0.15;
+  ctx.fill();
+
+  ctx.restore();
+}
+
+export function drawSnapPerimeter(
+  ctx: CanvasRenderingContext2D,
+  el: CanvasElement
+) {
+  const box = getBoundingBox(el, ctx);
+  if (!box) return;
+
+  const padding = 4;
+  const cx = box.x + box.width / 2;
+  const cy = box.y + box.height / 2;
+  const hw = box.width / 2 + padding;
+  const hh = box.height / 2 + padding;
+
+  ctx.save();
+  ctx.strokeStyle = SELECTION_COLOR;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]);
+  ctx.globalAlpha = 0.6;
+
+  if (el.type === 'shape' && (el.data.shapeType === 'circle' || el.data.shapeType === 'ellipse')) {
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, hw, hh, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  } else if (el.type === 'shape' && el.data.shapeType === 'diamond') {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - hh);
+    ctx.lineTo(cx + hw, cy);
+    ctx.lineTo(cx, cy + hh);
+    ctx.lineTo(cx - hw, cy);
+    ctx.closePath();
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.rect(box.x - padding, box.y - padding, box.width + padding * 2, box.height + padding * 2);
+    ctx.stroke();
+  }
+
+  // Fill sutil
+  ctx.globalAlpha = 0.05;
+  ctx.fillStyle = SELECTION_COLOR;
   ctx.fill();
 
   ctx.restore();

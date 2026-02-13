@@ -171,6 +171,12 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     </button>
   </div>
   <div id='selection-actions' class='hidden'>
+    <button id='action-unlock-arrow' class='hidden' title='Disconnect arrow'>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+      </svg>
+    </button>
     <button id='selection-more-btn' title='More options'>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="5" r="1.5"></circle>

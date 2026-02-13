@@ -2,7 +2,7 @@ import type { Tool, SelectionInfo } from '../types';
 import { store } from '../state/store';
 import * as actions from '../state/actions';
 import { getCanvasPoint, getSelectionBoundingBox, getBoundingBox, boxesIntersect } from '../utils/geometry';
-import { drawSelectionUI, drawLineSelectionUI, drawMarquee, drawElementBoundingBox, drawSnapIndicator } from './renderer';
+import { drawSelectionUI, drawLineSelectionUI, drawMarquee, drawElementBoundingBox, drawSnapIndicator, drawSnapPerimeter } from './renderer';
 import { renderElement } from './elementRenderers';
 import { drawText } from './tools/TextTool';
 import { tools } from './tools';
@@ -100,7 +100,10 @@ export function createCanvas(element: HTMLCanvasElement) {
       }
     }
 
-    // Draw snap indicator
+    // Draw snap perimeter around target shape + snap point indicator
+    if (state.snapTargetElement) {
+      drawSnapPerimeter(ctx, state.snapTargetElement);
+    }
     if (state.snapTarget) {
       drawSnapIndicator(ctx, state.snapTarget.x, state.snapTarget.y);
     }

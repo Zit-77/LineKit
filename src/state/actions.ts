@@ -549,8 +549,9 @@ export function setInitialRotation(rotation: number) {
   state.initialRotation = rotation;
 }
 
-export function setSnapTarget(point: Point | null) {
+export function setSnapTarget(point: Point | null, element?: CanvasElement | null) {
   state.snapTarget = point;
+  state.snapTargetElement = element ?? null;
 }
 
 // Commit active text block to elements

@@ -126,22 +126,11 @@ export function anchorToPoint(
 
 // ---- Snap detection ----
 
-function distToBorder(point: Point, el: CanvasElement, ctx: CanvasRenderingContext2D): number {
+function isPointInsideElement(point: Point, el: CanvasElement, ctx: CanvasRenderingContext2D): boolean {
   const box = getBoundingBox(el, ctx);
-  if (!box) return Infinity;
-
-  const left = box.x;
-  const right = box.x + box.width;
-  const top = box.y;
-  const bottom = box.y + box.height;
-
-  const clampedX = Math.max(left, Math.min(right, point.x));
-  const clampedY = Math.max(top, Math.min(bottom, point.y));
-
-  const isInside = point.x >= left && point.x <= right && point.y >= top && point.y <= bottom;
-  if (isInside) return 0;
-
-  return Math.sqrt((point.x - clampedX) ** 2 + (point.y - clampedY) ** 2);
+  if (!box) return false;
+  return point.x >= box.x && point.x <= box.x + box.width &&
+         point.y >= box.y && point.y <= box.y + box.height;
 }
 
 export function findSnapTarget(
@@ -157,7 +146,12 @@ export function findSnapTarget(
     if (excludeIds.has(el.id)) continue;
     if (el.type === 'arrow' || el.type === 'line') continue;
 
-    const dist = distToBorder(point, el, ctx);
+    // Apenas conectar quando o cursor está FORA do shape
+    if (isPointInsideElement(point, el, ctx)) continue;
+
+    const bp = getClosestBorderPoint(el, point, ctx);
+    if (!bp) continue;
+    const dist = Math.sqrt((point.x - bp.x) ** 2 + (point.y - bp.y) ** 2);
     if (dist < closestDist) {
       closestDist = dist;
       closest = el;
@@ -165,6 +159,23 @@ export function findSnapTarget(
   }
 
   return closest;
+}
+
+// ---- Arrow connection helpers ----
+
+export function isArrowConnected(el: CanvasElement): boolean {
+  if (el.type !== 'arrow') return false;
+  return !!(el.data.startConnectedTo || el.data.endConnectedTo);
+}
+
+export function disconnectArrow(el: CanvasElement): void {
+  if (el.type !== 'arrow') return;
+  el.data.startConnectedTo = undefined;
+  el.data.endConnectedTo = undefined;
+  el.data.startAnchorX = undefined;
+  el.data.startAnchorY = undefined;
+  el.data.endAnchorX = undefined;
+  el.data.endAnchorY = undefined;
 }
 
 // ---- Update connected arrows on element move ----
@@ -175,7 +186,7 @@ export function updateConnectedArrows(
   ctx: CanvasRenderingContext2D
 ): void {
   for (const el of elements) {
-    if (el.type !== 'arrow' && el.type !== 'line') continue;
+    if (el.type !== 'arrow') continue;
     const data = el.data;
 
     if (data.startConnectedTo === movedElement.id) {

@@ -3,7 +3,6 @@ import type { Point, Line } from "../../types";
 import type { BaseTool, ToolContext } from "./BaseTool";
 import * as actions from '../../state/actions';
 import { registerRenderer } from '../elementRenderers';
-import { findSnapTarget, getClosestBorderPoint, computeAnchor } from '../../utils/connections';
 
 function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
   const { startX, startY, endX, endY, color, opacity, lineWidth, controlX, controlY, style, roughness } = line;
@@ -79,35 +78,20 @@ export const LineTool: BaseTool = {
         context.canvas.style.cursor = 'crosshair';
     },
 
-    onMouseDown(_e: MouseEvent, point: Point, context: ToolContext) {
+    onMouseDown(_e: MouseEvent, point: Point, _context: ToolContext) {
         const state = store.getState();
-
-        let startX = point.x;
-        let startY = point.y;
-        let startConnectedTo: string | undefined;
-
-        const snapTarget = findSnapTarget(point, state.elements, new Set(), context.ctx);
-        if (snapTarget) {
-            const bp = getClosestBorderPoint(snapTarget, point, context.ctx);
-            if (bp) {
-                startX = bp.x;
-                startY = bp.y;
-                startConnectedTo = snapTarget.id;
-            }
-        }
 
         actions.setIsCreatingLine(true);
         actions.setCurrentLine({
-            startX,
-            startY,
-            endX: startX,
-            endY: startY,
+            startX: point.x,
+            startY: point.y,
+            endX: point.x,
+            endY: point.y,
             color: state.strokeColor,
             opacity: state.strokeOpacity,
             lineWidth: state.strokeWidth,
             style: state.lineStyle,
             roughness: state.lineRoughness,
-            startConnectedTo,
         });
     },
 
@@ -115,36 +99,8 @@ export const LineTool: BaseTool = {
         const state = store.getState();
 
         if (state.isCreatingLine && state.currentLine) {
-            const excludeIds = new Set<string>();
-            if (state.currentLine.startConnectedTo) excludeIds.add(state.currentLine.startConnectedTo);
-
-            // Recalcular start na borda: ponto mais perto do mouse
-            if (state.currentLine.startConnectedTo) {
-                const startEl = state.elements.find(e => e.id === state.currentLine!.startConnectedTo);
-                if (startEl) {
-                    const startBp = getClosestBorderPoint(startEl, point, context.ctx);
-                    if (startBp) {
-                        state.currentLine.startX = startBp.x;
-                        state.currentLine.startY = startBp.y;
-                    }
-                }
-            }
-
-            const snapTarget = findSnapTarget(point, state.elements, excludeIds, context.ctx);
-            if (snapTarget) {
-                const bp = getClosestBorderPoint(snapTarget, point, context.ctx);
-                if (bp) {
-                    state.currentLine.endX = bp.x;
-                    state.currentLine.endY = bp.y;
-                    actions.setSnapTarget(bp);
-                    context.render();
-                    return;
-                }
-            }
-
             state.currentLine.endX = point.x;
             state.currentLine.endY = point.y;
-            actions.setSnapTarget(null);
             context.render();
         }
     },
@@ -153,35 +109,8 @@ export const LineTool: BaseTool = {
         const state = store.getState();
 
         if (state.currentLine) {
-            const excludeIds = new Set<string>();
-            if (state.currentLine.startConnectedTo) excludeIds.add(state.currentLine.startConnectedTo);
-
-            const snapTarget = findSnapTarget(point, state.elements, excludeIds, context.ctx);
-            if (snapTarget) {
-                const bp = getClosestBorderPoint(snapTarget, point, context.ctx);
-                if (bp) {
-                    state.currentLine.endX = bp.x;
-                    state.currentLine.endY = bp.y;
-                    state.currentLine.endConnectedTo = snapTarget.id;
-                    const anchor = computeAnchor(snapTarget, bp, context.ctx);
-                    if (anchor) {
-                        state.currentLine.endAnchorX = anchor.anchorX;
-                        state.currentLine.endAnchorY = anchor.anchorY;
-                    }
-                }
-            }
-
-            // Salvar anchor do start
-            if (state.currentLine.startConnectedTo) {
-                const startEl = state.elements.find(e => e.id === state.currentLine!.startConnectedTo);
-                if (startEl) {
-                    const anchor = computeAnchor(startEl, { x: state.currentLine.startX, y: state.currentLine.startY }, context.ctx);
-                    if (anchor) {
-                        state.currentLine.startAnchorX = anchor.anchorX;
-                        state.currentLine.startAnchorY = anchor.anchorY;
-                    }
-                }
-            }
+            state.currentLine.endX = point.x;
+            state.currentLine.endY = point.y;
         }
 
         actions.setSnapTarget(null);

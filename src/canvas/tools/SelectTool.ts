@@ -11,7 +11,7 @@ import {
   boxesIntersect,
 } from '../../utils/geometry';
 import { moveElement, rotateElement, scaleElement } from '../../elements';
-import { updateConnectedArrows, findSnapTarget, getClosestBorderPoint, computeAnchor } from '../../utils/connections';
+import { updateConnectedArrows, findSnapTarget, getClosestBorderPoint, computeAnchor, isArrowConnected } from '../../utils/connections';
 import { generateId } from '../../utils/id';
 
 // Clipboard para copiar/colar elementos
@@ -110,8 +110,12 @@ export const SelectTool: BaseTool = {
         }
       }
 
-      actions.setIsDragging(true);
-      actions.setDragStart(point);
+      // Bloquear arrasto de setas conectadas (apenas handles podem ser usados)
+      const allConnected = Array.from(state.selectedElements).every(el => isArrowConnected(el));
+      if (!allConnected) {
+        actions.setIsDragging(true);
+        actions.setDragStart(point);
+      }
     } else {
       if (!e.shiftKey) {
         actions.clearSelection();
@@ -152,7 +156,7 @@ export const SelectTool: BaseTool = {
                 data.startAnchorX = anchor.anchorX;
                 data.startAnchorY = anchor.anchorY;
               }
-              actions.setSnapTarget(bp);
+              actions.setSnapTarget(bp, snapTarget);
             }
           } else {
             data.startX = point.x;
@@ -160,7 +164,7 @@ export const SelectTool: BaseTool = {
             data.startConnectedTo = undefined;
             data.startAnchorX = undefined;
             data.startAnchorY = undefined;
-            actions.setSnapTarget(null);
+            actions.setSnapTarget(null, null);
           }
         } else if (state.activeHandle === 'end') {
           const excludeIds = new Set<string>([el.id]);
@@ -176,7 +180,7 @@ export const SelectTool: BaseTool = {
                 data.endAnchorX = anchor.anchorX;
                 data.endAnchorY = anchor.anchorY;
               }
-              actions.setSnapTarget(bp);
+              actions.setSnapTarget(bp, snapTarget);
             }
           } else {
             data.endX = point.x;
@@ -184,7 +188,7 @@ export const SelectTool: BaseTool = {
             data.endConnectedTo = undefined;
             data.endAnchorX = undefined;
             data.endAnchorY = undefined;
-            actions.setSnapTarget(null);
+            actions.setSnapTarget(null, null);
           }
         } else if (state.activeHandle === 'mid') {
           data.controlX = 2 * point.x - 0.5 * data.startX - 0.5 * data.endX;

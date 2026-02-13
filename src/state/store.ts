@@ -104,6 +104,7 @@ interface State {
 
   // Snap indicator
   snapTarget: Point | null;
+  snapTargetElement: CanvasElement | null;
 
   // Transform state
   activeHandle: HandleType;
@@ -287,6 +288,7 @@ function createStore() {
 
     // Snap indicator
     snapTarget: null,
+    snapTargetElement: null,
 
     // Transform state
     activeHandle: null,

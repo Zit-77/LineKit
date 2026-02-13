@@ -164,7 +164,7 @@ export const ArrowTool: BaseTool = {
         if (bp) {
           state.currentArrow.endX = bp.x;
           state.currentArrow.endY = bp.y;
-          actions.setSnapTarget(bp);
+          actions.setSnapTarget(bp, snapTarget);
           context.render();
           return;
         }
@@ -172,7 +172,7 @@ export const ArrowTool: BaseTool = {
 
       state.currentArrow.endX = point.x;
       state.currentArrow.endY = point.y;
-      actions.setSnapTarget(null);
+      actions.setSnapTarget(null, null);
       context.render();
     }
   },
