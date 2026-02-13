@@ -385,6 +385,25 @@ export const SelectTool: BaseTool = {
       actions.setActiveTextBlock(hitElement.data);
 
       context.render();
+    } else if (!hitElement) {
+      // Double-click em área vazia: abrir modo texto
+      actions.clearSelection();
+      actions.setSelectionRotation(0);
+      context.setTool('text');
+      context.canvas.style.cursor = 'text';
+
+      actions.setActiveTextBlock({
+        text: '',
+        x: point.x,
+        y: point.y,
+        fontSize: state.textSize,
+        fontFamily: state.textFontFamily,
+        fontStyle: state.textStyle,
+        color: state.textColor,
+        opacity: state.textOpacity,
+        rotation: 0,
+      });
+      context.render();
     }
   },
 

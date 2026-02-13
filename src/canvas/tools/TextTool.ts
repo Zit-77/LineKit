@@ -202,6 +202,8 @@ registerRenderer('text', (ctx, data) => drawText(ctx, data));
 
 // ── Tool ──────────────────────────────────────────────────────────
 
+let isDraggingText = false;
+
 export const TextTool: BaseTool = {
   name: 'text',
   cursor: 'text',
@@ -236,16 +238,15 @@ export const TextTool: BaseTool = {
 
       if (inBounds) {
         const pos = getCursorPosFromClick(context.ctx, block, point.x, point.y);
-        actions.setTextCursorPos(pos);
         if (_e.shiftKey) {
           if (state.textSelectionStart === null) {
             actions.setTextSelectionStart(state.textCursorPos);
           }
-          // selectionStart stays, cursor moves
         } else {
-          actions.setTextSelectionStart(null);
+          actions.setTextSelectionStart(pos);
         }
         actions.setTextCursorPos(pos);
+        isDraggingText = true;
         context.render();
         return;
       }
@@ -269,6 +270,27 @@ export const TextTool: BaseTool = {
       rotation: 0,
     });
     context.render();
+  },
+
+  onMouseMove(_e: MouseEvent, point: Point, context: ToolContext) {
+    if (!isDraggingText) return;
+    const state = store.getState();
+    if (!state.activeTextBlock) return;
+
+    const pos = getCursorPosFromClick(context.ctx, state.activeTextBlock, point.x, point.y);
+    actions.setTextCursorPos(pos);
+    context.render();
+  },
+
+  onMouseUp(_e: MouseEvent, _point: Point, _context: ToolContext) {
+    if (isDraggingText) {
+      isDraggingText = false;
+      // Se selectionStart === cursorPos, não há seleção real
+      const state = store.getState();
+      if (state.textSelectionStart === state.textCursorPos) {
+        actions.setTextSelectionStart(null);
+      }
+    }
   },
 
   onKeyDown(e: KeyboardEvent, context: ToolContext) {

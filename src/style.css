@@ -93,6 +93,37 @@ body {
   touch-action: none;
 }
 
+#github-btn {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  height: 36px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  color: hsl(var(--foreground));
+  text-decoration: none;
+  z-index: 999;
+  transition: background-color 0.15s, transform 0.15s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+#github-btn:hover {
+  background-color: hsl(var(--accent));
+  transform: translateY(-2px);
+}
+
+#github-stars {
+  white-space: nowrap;
+}
+
 #header {
   position: fixed;
   top: 1rem;
